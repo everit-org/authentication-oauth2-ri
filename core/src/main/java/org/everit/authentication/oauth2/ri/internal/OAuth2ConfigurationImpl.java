@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri;
+package org.everit.authentication.oauth2.ri.internal;
 
 import java.util.Objects;
 
@@ -64,21 +64,15 @@ public class OAuth2ConfigurationImpl implements OAuth2Configuration {
   public OAuth2ConfigurationImpl(final String authorizationEndpoint, final String clientId,
       final String clientSecret, final String providerName, final String redirectEndpoint,
       final String scope, final String tokenEndpoint) {
-    Objects.requireNonNull(authorizationEndpoint, "The authorizationEndpoint cannot be null.");
-    Objects.requireNonNull(clientId, "The clientId cannot be null.");
-    Objects.requireNonNull(clientSecret, "The clientSecret cannot be null.");
-    Objects.requireNonNull(providerName, "The providerName cannot be null.");
-    Objects.requireNonNull(redirectEndpoint, "The redirectEndpoint cannot be null.");
-    Objects.requireNonNull(scope, "The scope cannot be null.");
-    Objects.requireNonNull(tokenEndpoint, "The tokenEndpoint cannot be null.");
-
-    this.authorizationEndpoint = authorizationEndpoint;
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-    this.providerName = providerName;
-    this.redirectEndpoint = redirectEndpoint;
-    this.scope = scope;
-    this.tokenEndpoint = tokenEndpoint;
+    this.authorizationEndpoint = Objects.requireNonNull(authorizationEndpoint,
+        "The authorizationEndpoint cannot be null.");
+    this.clientId = Objects.requireNonNull(clientId, "The clientId cannot be null.");
+    this.clientSecret = Objects.requireNonNull(clientSecret, "The clientSecret cannot be null.");
+    this.providerName = Objects.requireNonNull(providerName, "The providerName cannot be null.");
+    this.redirectEndpoint = Objects.requireNonNull(redirectEndpoint,
+        "The redirectEndpoint cannot be null.");
+    this.scope = Objects.requireNonNull(scope, "The scope cannot be null.");
+    this.tokenEndpoint = Objects.requireNonNull(tokenEndpoint, "The tokenEndpoint cannot be null.");
   }
 
   @Override

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri;
+package org.everit.authentication.oauth2.ri.internal;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -63,15 +63,14 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
   public OAuth2ResourceIdResolverImpl(final PropertyManager propertyManager,
       final QuerydslSupport querydslSupport, final ResourceService resourceService,
       final TransactionHelper transactionHelper) {
-    Objects.requireNonNull(propertyManager, "The propertyManager cannot be null.");
-    Objects.requireNonNull(querydslSupport, "The querydslSupport cannot be null.");
-    Objects.requireNonNull(resourceService, "The resourceService cannot be null.");
-    Objects.requireNonNull(transactionHelper, "The transactionHelper cannot be null.");
-
-    this.propertyManager = propertyManager;
-    this.querydslSupport = querydslSupport;
-    this.resourceService = resourceService;
-    this.transactionHelper = transactionHelper;
+    this.propertyManager = Objects.requireNonNull(propertyManager,
+        "The propertyManager cannot be null.");
+    this.querydslSupport = Objects.requireNonNull(querydslSupport,
+        "The querydslSupport cannot be null.");
+    this.resourceService = Objects.requireNonNull(resourceService,
+        "The resourceService cannot be null.");
+    this.transactionHelper = Objects.requireNonNull(transactionHelper,
+        "The transactionHelper cannot be null.");
 
     init();
   }

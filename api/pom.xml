@@ -79,7 +79,7 @@
               *
             </Import-Package>
             <Export-Package>
-              org.everit.authentication.oauth2.ri.api;version=1.0.0
+              org.everit.authentication.oauth2.ri;version=1.0.0
             </Export-Package>
           </instructions>
         </configuration>

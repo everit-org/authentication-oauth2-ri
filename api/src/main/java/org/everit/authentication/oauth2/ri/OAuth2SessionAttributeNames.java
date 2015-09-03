@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri.api;
+package org.everit.authentication.oauth2.ri;
 
 /**
  * Provides the session attribute names stored in and read from the

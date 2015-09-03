@@ -76,13 +76,13 @@
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Import-Package>
-              org.everit.authentication.oauth2;version=[1.0,2),
-              org.everit.authentication.oauth2.ri.api;version=[1.0,2),
-              org.everit.authentication.oauth2.ri.schema.qdsl;version=[1.0,2),
+              org.everit.authentication.oauth2;version="[1.0,2)",
+              org.everit.authentication.oauth2.ri;version="[1.0,2)",
+              org.everit.authentication.oauth2.ri.schema.qdsl;version="[1.0,2)",
               *
             </Import-Package>
             <Export-Package>
-              org.everit.authentication.oauth2.ri;version=1.0.0
+              org.everit.authentication.oauth2.ri.internal;version=1.0.0
             </Export-Package>
           </instructions>
         </configuration>

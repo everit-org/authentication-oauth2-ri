@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri;
+package org.everit.authentication.oauth2.ri.internal;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -34,12 +34,13 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.everit.authentication.oauth2.OAuth2Configuration;
-import org.everit.authentication.oauth2.OAuth2RequestURIResolver;
-import org.everit.authentication.oauth2.ri.api.OAuth2SessionAttributeNames;
+import org.everit.authentication.oauth2.OAuth2UserIdResolver;
+import org.everit.authentication.oauth2.ri.OAuth2SessionAttributeNames;
 import org.everit.osgi.authentication.http.session.AuthenticationSessionAttributeNames;
 import org.everit.osgi.resource.resolver.ResourceIdResolver;
 import org.everit.web.servlet.HttpServlet;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Servlet that manage OAuth2 authentication and implementation of
@@ -64,15 +65,15 @@ public class OAuth2AuthenticationServlet extends HttpServlet
 
   private String failedUrl;
 
-  private Logger logger;
+  private Logger logger = LoggerFactory.getLogger(OAuth2AuthenticationServlet.class);
 
   private String loginEndpointPath;
 
   private OAuth2Configuration oauth2Configuration;
 
-  private String redirectEndpointPath;
+  private OAuth2UserIdResolver oauth2UserIdResolver;
 
-  private OAuth2RequestURIResolver requestURIResolver;
+  private String redirectEndpointPath;
 
   private ResourceIdResolver resourceIdResolver;
 
@@ -92,15 +93,13 @@ public class OAuth2AuthenticationServlet extends HttpServlet
    *          the {@link OAuth2Configuration} instance. Cannot be <code>null</code>!
    * @param redirectEndpointPath
    *          the servlet path where the OAuth2 server redirect.
-   * @param requestURIResolver
-   *          the {@link OAuth2RequestURIResolver} instance. Cannot be <code>null</code>!
+   * @param oauth2UserIdResolver
+   *          the {@link OAuth2UserIdResolver} instance. Cannot be <code>null</code>!
    * @param resourceIdResolver
    *          the {@link ResourceIdResolver} instance. Cannot be <code>null</code>!
    * @param successUrl
    *          the URL where the user will be redirected by default in case of a successful
    *          authentication. Cannot be <code>null</code>!
-   * @param logger
-   *          the {@link Logger} instance. Cannot be <code>null</code>!
    *
    * @throws NullPointerException
    *           if one of the parameters is <code>null</code>.
@@ -109,28 +108,23 @@ public class OAuth2AuthenticationServlet extends HttpServlet
       final AuthenticationSessionAttributeNames authenticationSessionAttributeNames,
       final String failedUrl, final String loginEndpointPath,
       final OAuth2Configuration oauth2Configuration, final String redirectEndpointPath,
-      final OAuth2RequestURIResolver requestURIResolver,
-      final ResourceIdResolver resourceIdResolver, final String successUrl, final Logger logger) {
-    Objects.requireNonNull(authenticationSessionAttributeNames,
-        "The authenticationSessionAttributeNames cannot be null.");
-    Objects.requireNonNull(failedUrl, "The failedUrl cannot be null.");
-    Objects.requireNonNull(loginEndpointPath, "The loginEndpointPath cannot be null.");
-    Objects.requireNonNull(oauth2Configuration, "The oauth2Configuration cannot be null.");
-    Objects.requireNonNull(redirectEndpointPath, "The redirectEndpointPath cannot be null.");
-    Objects.requireNonNull(requestURIResolver, "The requestURIResolver cannot be null.");
-    Objects.requireNonNull(resourceIdResolver, "The resourceIdResolver cannot be null.");
-    Objects.requireNonNull(successUrl, "The successUrl cannot be null.");
-    Objects.requireNonNull(logger, "The logger cannot be null.");
-
-    this.authenticationSessionAttributeNames = authenticationSessionAttributeNames;
-    this.failedUrl = failedUrl;
-    this.loginEndpointPath = loginEndpointPath;
-    this.oauth2Configuration = oauth2Configuration;
-    this.redirectEndpointPath = redirectEndpointPath;
-    this.requestURIResolver = requestURIResolver;
-    this.resourceIdResolver = resourceIdResolver;
-    this.successUrl = successUrl;
-    this.logger = logger;
+      final OAuth2UserIdResolver oauth2UserIdResolver,
+      final ResourceIdResolver resourceIdResolver, final String successUrl) {
+    this.authenticationSessionAttributeNames =
+        Objects.requireNonNull(authenticationSessionAttributeNames,
+            "The authenticationSessionAttributeNames cannot be null.");
+    this.failedUrl = Objects.requireNonNull(failedUrl, "The failedUrl cannot be null.");
+    this.loginEndpointPath = Objects.requireNonNull(loginEndpointPath,
+        "The loginEndpointPath cannot be null.");
+    this.oauth2Configuration = Objects.requireNonNull(oauth2Configuration,
+        "The oauth2Configuration cannot be null.");
+    this.redirectEndpointPath = Objects.requireNonNull(redirectEndpointPath,
+        "The redirectEndpointPath cannot be null.");
+    this.oauth2UserIdResolver = Objects.requireNonNull(oauth2UserIdResolver,
+        "The oauth2UserIdResolver cannot be null.");
+    this.resourceIdResolver = Objects.requireNonNull(resourceIdResolver,
+        "The resourceIdResolver cannot be null.");
+    this.successUrl = Objects.requireNonNull(successUrl, "The successUrl cannot be null.");
   }
 
   @Override
@@ -185,30 +179,15 @@ public class OAuth2AuthenticationServlet extends HttpServlet
 
       // Store the access token response in the session
       HttpSession httpSession = req.getSession();
-
-      String accessToken = oauthAccessTokenResponse.getAccessToken();
-      httpSession.setAttribute(oauth2AccessToken(), accessToken);
-
-      Long expiresIn = oauthAccessTokenResponse.getExpiresIn();
-      httpSession.setAttribute(oauth2AccessTokenExpiresIn(),
-          expiresIn);
-
-      String refreshToken = oauthAccessTokenResponse.getRefreshToken();
-      httpSession.setAttribute(oauth2RefreshToken(), refreshToken);
-
-      String scope = oauthAccessTokenResponse.getScope();
-      httpSession.setAttribute(oauth2Scope(), scope);
-
-      String tokenType = oauthAccessTokenResponse.getParam(PARAM_TOKEN_TYPE);
-      httpSession.setAttribute(oauth2TokenType(), tokenType);
+      storeAccessTokenResponseInSession(httpSession, oauthAccessTokenResponse);
 
       // Resource ID mapping
-      String uniqueUserId = requestURIResolver.getUniqueUserId(
-          tokenType,
-          accessToken,
-          expiresIn,
-          refreshToken,
-          scope);
+      String uniqueUserId = oauth2UserIdResolver.getUniqueUserId(
+          oauthAccessTokenResponse.getParam(PARAM_TOKEN_TYPE),
+          oauthAccessTokenResponse.getAccessToken(),
+          oauthAccessTokenResponse.getExpiresIn(),
+          oauthAccessTokenResponse.getRefreshToken(),
+          oauthAccessTokenResponse.getScope());
 
       Optional<Long> optionalAuthenticatedResourceId = resourceIdResolver
           .getResourceId(oauth2Configuration.providerName() + ";" + uniqueUserId);
@@ -267,6 +246,25 @@ public class OAuth2AuthenticationServlet extends HttpServlet
       // not throw in implementation
       // (org.apache.oltu.oauth2.common.parameters.QueryParameterApplier)
     }
+  }
+
+  private void storeAccessTokenResponseInSession(final HttpSession httpSession,
+      final OAuthJSONAccessTokenResponse oauthAccessTokenResponse) {
+    String accessToken = oauthAccessTokenResponse.getAccessToken();
+    httpSession.setAttribute(oauth2AccessToken(), accessToken);
+
+    Long expiresIn = oauthAccessTokenResponse.getExpiresIn();
+    httpSession.setAttribute(oauth2AccessTokenExpiresIn(),
+        expiresIn);
+
+    String refreshToken = oauthAccessTokenResponse.getRefreshToken();
+    httpSession.setAttribute(oauth2RefreshToken(), refreshToken);
+
+    String scope = oauthAccessTokenResponse.getScope();
+    httpSession.setAttribute(oauth2Scope(), scope);
+
+    String tokenType = oauthAccessTokenResponse.getParam(PARAM_TOKEN_TYPE);
+    httpSession.setAttribute(oauth2TokenType(), tokenType);
   }
 
 }
