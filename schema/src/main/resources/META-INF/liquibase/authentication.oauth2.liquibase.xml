@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<databaseChangeLog objectQuotingStrategy="QUOTE_ALL_OBJECTS"
+  logicalFilePath="org.everit.authentication.oauth2ri.schema" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <include file="eosgi:org.everit.osgi.resource.ri" />
+  <include file="eosgi:org.everit.osgi.props.ri" />
+
+  <changeSet id="1.0.0" author="everit">
+
+    <createTable tableName="oauth2_user_mapping">
+      <column name="oauth2_user_mapping_id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false" />
+      </column>
+      <column name="resource_id" type="bigint">
+        <constraints nullable="false" />
+      </column>
+      <column name="provider_name" type="java.sql.Types.VARCHAR(256)">
+        <constraints nullable="false" />
+      </column>
+      <column name="provider_unique_user_id" type="java.sql.Types.VARCHAR(256)">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+
+    <addForeignKeyConstraint constraintName="fk_oauth2_user_mapping_resource"
+      baseTableName="oauth2_user_mapping" baseColumnNames="resource_id"
+      referencedTableName="res_resource" referencedColumnNames="resource_id" />
+
+  </changeSet>
+
+</databaseChangeLog>
+
