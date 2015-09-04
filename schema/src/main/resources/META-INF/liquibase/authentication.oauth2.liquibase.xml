@@ -17,7 +17,7 @@
 
 -->
 <databaseChangeLog objectQuotingStrategy="QUOTE_ALL_OBJECTS"
-  logicalFilePath="org.everit.authentication.oauth2ri.schema" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  logicalFilePath="org.everit.authentication.oauth2.ri.schema" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">

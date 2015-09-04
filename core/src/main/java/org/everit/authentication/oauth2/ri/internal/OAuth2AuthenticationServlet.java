@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
+import org.apache.oltu.oauth2.client.response.OAuthAccessTokenResponse;
 import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
 import org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
@@ -48,16 +49,6 @@ import org.slf4j.LoggerFactory;
  */
 public class OAuth2AuthenticationServlet extends HttpServlet
     implements OAuth2SessionAttributeNames {
-
-  // TODO nyilvanos api Oauth2Configuration, RequestUriResolver
-  // TODO ri/api, ri-core, ri-schema
-  // TODO tests jetty bekonfigurálva féliaz oauth leírva hogy kell konfigurálni.
-  // sample-google,sample-facebook
-  // publikus login oldal, google,fb login, sikeres login. Teljes nev megjelentés irjuk ki a db-be
-  // mentet rekordokat azon az oldalon még.
-  // TODO loguot (token invalnidálás oauth serveren) + redirect a sessionauthenticationcomponentre
-  // (logouturl-jére)
-  // sessionauthenticationcompoenent a servletcontextfactorybe konfirurálni + filter.
 
   private static final String PARAM_TOKEN_TYPE = "token_type";
 
@@ -152,7 +143,7 @@ public class OAuth2AuthenticationServlet extends HttpServlet
     return "oauth2.token.type";
   }
 
-  private OAuthJSONAccessTokenResponse obtainAccessToken(final String authorizationCode)
+  private OAuthAccessTokenResponse obtainAccessToken(final String authorizationCode)
       throws OAuthSystemException, OAuthProblemException {
     OAuthClientRequest request = OAuthClientRequest
         .tokenLocation(oauth2Configuration.tokenEndpoint())
@@ -163,8 +154,9 @@ public class OAuth2AuthenticationServlet extends HttpServlet
         .setCode(authorizationCode)
         .buildBodyMessage();
 
+    // TODO text/plain response not work (example: facebook)
     OAuthClient client = new OAuthClient(new URLConnectionClient());
-    OAuthJSONAccessTokenResponse oauthResponse =
+    OAuthAccessTokenResponse oauthResponse =
         client.accessToken(request, OAuthJSONAccessTokenResponse.class);
     return oauthResponse;
   }
@@ -175,7 +167,7 @@ public class OAuth2AuthenticationServlet extends HttpServlet
       // Authentication response from oauth server
       OAuthAuthzResponse oar = OAuthAuthzResponse.oauthCodeAuthzResponse(req);
 
-      OAuthJSONAccessTokenResponse oauthAccessTokenResponse = obtainAccessToken(oar.getCode());
+      OAuthAccessTokenResponse oauthAccessTokenResponse = obtainAccessToken(oar.getCode());
 
       // Store the access token response in the session
       HttpSession httpSession = req.getSession();
@@ -249,7 +241,7 @@ public class OAuth2AuthenticationServlet extends HttpServlet
   }
 
   private void storeAccessTokenResponseInSession(final HttpSession httpSession,
-      final OAuthJSONAccessTokenResponse oauthAccessTokenResponse) {
+      final OAuthAccessTokenResponse oauthAccessTokenResponse) {
     String accessToken = oauthAccessTokenResponse.getAccessToken();
     httpSession.setAttribute(oauth2AccessToken(), accessToken);
 
