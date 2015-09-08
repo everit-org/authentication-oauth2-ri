@@ -29,7 +29,6 @@ import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.response.OAuthAccessTokenResponse;
 import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
-import org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
@@ -137,10 +136,9 @@ public class OAuth2AuthenticationServlet extends HttpServlet
         .setCode(authorizationCode)
         .buildBodyMessage();
 
-    // TODO text/plain response not work (example: facebook)
     OAuthClient client = new OAuthClient(new URLConnectionClient());
     OAuthAccessTokenResponse oauthResponse =
-        client.accessToken(request, OAuthJSONAccessTokenResponse.class);
+        client.accessToken(request, AccessTokenResponse.class);
     return oauthResponse;
   }
 
@@ -200,9 +198,6 @@ public class OAuth2AuthenticationServlet extends HttpServlet
     } else if (redirectEndpointPath.equals(servletPath)) {
       processOAuth2Response(req, resp);
     }
-    // if oauthLogout
-    // 1. oauth logout
-    // 2. resp.sendRedirect(http session logout url)
   }
 
   private void startOAuth2Authentication(final HttpServletResponse resp) throws IOException {
