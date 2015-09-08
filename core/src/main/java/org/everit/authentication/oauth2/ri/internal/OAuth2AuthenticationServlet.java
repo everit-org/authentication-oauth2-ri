@@ -165,7 +165,7 @@ public class OAuth2AuthenticationServlet extends HttpServlet
           oauthAccessTokenResponse.getScope());
 
       Optional<Long> optionalAuthenticatedResourceId = resourceIdResolver
-          .getResourceId(oauth2Configuration.providerName() + ";" + uniqueUserId);
+          .getResourceId(uniqueUserId);
       if (!optionalAuthenticatedResourceId.isPresent()) {
         logger.info("Unique user ID '" + uniqueUserId + "' cannot be mapped to Resource ID");
         redirectToFailedUrl(resp);

@@ -39,6 +39,8 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
   private PropertyManager propertyManager;
 
+  private String providerName;
+
   private QuerydslSupport querydslSupport;
 
   private ResourceService resourceService;
@@ -46,7 +48,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
   private TransactionHelper transactionHelper;
 
   /**
-   * Consturctor.
+   * Constructor.
    *
    * @param propertyManager
    *          the {@link PropertyManager} instance. Cannot be <code>null</code>!
@@ -56,13 +58,15 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
    *          the {@link ResourceService} instance. Cannot be <code>null</code>!
    * @param transactionHelper
    *          the {@link TransactionHelper} instance. Cannot be <code>null</code>!
+   * @param providerName
+   *          the OAuth2 provider name. Cannot be <code>null</code>!
    *
    * @throws NullPointerException
    *           if one of the parameters is <code>null</code>.
    */
   public OAuth2ResourceIdResolverImpl(final PropertyManager propertyManager,
       final QuerydslSupport querydslSupport, final ResourceService resourceService,
-      final TransactionHelper transactionHelper) {
+      final TransactionHelper transactionHelper, final String providerName) {
     this.propertyManager = Objects.requireNonNull(propertyManager,
         "The propertyManager cannot be null.");
     this.querydslSupport = Objects.requireNonNull(querydslSupport,
@@ -71,6 +75,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
         "The resourceService cannot be null.");
     this.transactionHelper = Objects.requireNonNull(transactionHelper,
         "The transactionHelper cannot be null.");
+    this.providerName = Objects.requireNonNull(providerName, "The providerName cannot be null.");
 
     init();
   }
@@ -109,9 +114,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
   @Override
   public Optional<Long> getResourceId(final String uniqueIdentifier) {
-    String[] splitUniqueIdentifier = uniqueIdentifier.split(";");
-    long resourceId =
-        getOrCreateResourceId(splitUniqueIdentifier[0], splitUniqueIdentifier[1]);
+    long resourceId = getOrCreateResourceId(providerName, uniqueIdentifier);
     return Optional.ofNullable(resourceId);
   }
 
