@@ -27,11 +27,13 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
+import org.everit.authentication.oauth2.ri.AccessTokenResponse;
 import org.everit.authentication.oauth2.ri.OAuth2Communicator;
-import org.everit.authentication.oauth2.ri.dto.AccessTokenResponse;
-import org.everit.authentication.oauth2.ri.dto.OAuth2ConfigurationDTO;
-import org.everit.authentication.oauth2.ri.exception.OAuth2Exception;
+import org.everit.authentication.oauth2.ri.OAuth2ConfigurationDTO;
 
+/**
+ * Basic implementation of {@link OAuth2Communicator}.
+ */
 public class OAuth2CommunicatorImpl implements OAuth2Communicator {
 
   private OAuth2ConfigurationDTO oauth2Configuration;
@@ -42,7 +44,7 @@ public class OAuth2CommunicatorImpl implements OAuth2Communicator {
   }
 
   @Override
-  public AccessTokenResponse getAccessToken(final HttpServletRequest req) throws OAuth2Exception {
+  public AccessTokenResponse getAccessToken(final HttpServletRequest req) {
     AccessTokenResponse oauthResponse = null;
     try {
       OAuthAuthzResponse oar = OAuthAuthzResponse.oauthCodeAuthzResponse(req);
@@ -58,13 +60,13 @@ public class OAuth2CommunicatorImpl implements OAuth2Communicator {
       OAuthClient client = new OAuthClient(new URLConnectionClient());
       oauthResponse = client.accessToken(request, AccessTokenResponse.class);
     } catch (OAuthSystemException | OAuthProblemException e) {
-      throw new OAuth2Exception("Problem with obtain access token from OAuth2 server", e);
+      throw new RuntimeException("Problem with obtain access token from OAuth2 server", e);
     }
     return oauthResponse;
   }
 
   @Override
-  public String getAuthorizationUriWithParams() throws OAuth2Exception {
+  public String getAuthorizationUriWithParams() {
     OAuthClientRequest request;
     try {
       request = OAuthClientRequest
@@ -77,7 +79,7 @@ public class OAuth2CommunicatorImpl implements OAuth2Communicator {
     } catch (OAuthSystemException e) {
       // not throw in implementation
       // (org.apache.oltu.oauth2.common.parameters.QueryParameterApplier)
-      throw new OAuth2Exception("Problem with authorization uri create.", e);
+      throw new RuntimeException("Problem with authorization uri create.", e);
     }
     return request.getLocationUri();
   }

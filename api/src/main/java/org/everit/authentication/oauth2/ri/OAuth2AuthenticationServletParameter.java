@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri.dto;
+package org.everit.authentication.oauth2.ri;
 
 import org.everit.authentication.oauth2.OAuth2UserIdResolver;
-import org.everit.authentication.oauth2.ri.OAuth2Communicator;
 import org.everit.osgi.authentication.http.session.AuthenticationSessionAttributeNames;
 import org.everit.osgi.resource.resolver.ResourceIdResolver;
 
