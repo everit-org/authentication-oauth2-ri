@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri;
+package org.everit.authentication.oauth2.ri.dto;
 
-import org.everit.authentication.oauth2.OAuth2Configuration;
 import org.everit.authentication.oauth2.OAuth2UserIdResolver;
+import org.everit.authentication.oauth2.ri.OAuth2Communicator;
 import org.everit.osgi.authentication.http.session.AuthenticationSessionAttributeNames;
 import org.everit.osgi.resource.resolver.ResourceIdResolver;
 
@@ -31,7 +31,7 @@ public class OAuth2AuthenticationServletParameter {
 
   public String loginEndpointPath;
 
-  public OAuth2Configuration oauth2Configuration;
+  public OAuth2Communicator oauth2Communicator;
 
   public OAuth2UserIdResolver oauth2UserIdResolver;
 
@@ -57,9 +57,9 @@ public class OAuth2AuthenticationServletParameter {
     return this;
   }
 
-  public OAuth2AuthenticationServletParameter oauth2Configuration(
-      final OAuth2Configuration oauth2Configuration) {
-    this.oauth2Configuration = oauth2Configuration;
+  public OAuth2AuthenticationServletParameter oauth2Communicator(
+      final OAuth2Communicator oauth2Communicator) {
+    this.oauth2Communicator = oauth2Communicator;
     return this;
   }
 

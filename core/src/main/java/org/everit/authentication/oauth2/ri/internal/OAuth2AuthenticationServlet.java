@@ -24,19 +24,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.oltu.oauth2.client.OAuthClient;
-import org.apache.oltu.oauth2.client.URLConnectionClient;
-import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
-import org.apache.oltu.oauth2.client.response.OAuthAccessTokenResponse;
-import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
-import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
-import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
-import org.apache.oltu.oauth2.common.message.types.GrantType;
-import org.apache.oltu.oauth2.common.message.types.ResponseType;
-import org.everit.authentication.oauth2.OAuth2Configuration;
 import org.everit.authentication.oauth2.OAuth2UserIdResolver;
-import org.everit.authentication.oauth2.ri.OAuth2AuthenticationServletParameter;
+import org.everit.authentication.oauth2.ri.OAuth2Communicator;
 import org.everit.authentication.oauth2.ri.OAuth2SessionAttributeNames;
+import org.everit.authentication.oauth2.ri.dto.AccessTokenResponse;
+import org.everit.authentication.oauth2.ri.dto.OAuth2AuthenticationServletParameter;
+import org.everit.authentication.oauth2.ri.exception.OAuth2Exception;
 import org.everit.osgi.authentication.http.session.AuthenticationSessionAttributeNames;
 import org.everit.osgi.resource.resolver.ResourceIdResolver;
 import org.everit.web.servlet.HttpServlet;
@@ -60,7 +53,7 @@ public class OAuth2AuthenticationServlet extends HttpServlet
 
   private String loginEndpointPath;
 
-  private OAuth2Configuration oauth2Configuration;
+  private OAuth2Communicator oauth2Communicator;
 
   private OAuth2UserIdResolver oauth2UserIdResolver;
 
@@ -89,15 +82,65 @@ public class OAuth2AuthenticationServlet extends HttpServlet
     failedUrl = Objects.requireNonNull(parameters.failedUrl, "The failedUrl cannot be null.");
     loginEndpointPath = Objects.requireNonNull(parameters.loginEndpointPath,
         "The loginEndpointPath cannot be null.");
-    oauth2Configuration = Objects.requireNonNull(parameters.oauth2Configuration,
-        "The oauth2Configuration cannot be null.");
     redirectEndpointPath = Objects.requireNonNull(parameters.redirectEndpointPath,
         "The redirectEndpointPath cannot be null.");
+    oauth2Communicator = Objects.requireNonNull(parameters.oauth2Communicator,
+        "The oauth2Communicator cannot be null.");
     oauth2UserIdResolver = Objects.requireNonNull(parameters.oauth2UserIdResolver,
         "The oauth2UserIdResolver cannot be null.");
     resourceIdResolver = Objects.requireNonNull(parameters.resourceIdResolver,
         "The resourceIdResolver cannot be null.");
     successUrl = Objects.requireNonNull(parameters.successUrl, "The successUrl cannot be null.");
+  }
+
+  private void continueOAuth2Authenticate(final HttpServletRequest req,
+      final HttpServletResponse resp) throws IOException {
+    try {
+      // Authentication response from oauth server
+      AccessTokenResponse oauthAccessTokenResponse =
+          oauth2Communicator.getAccessToken(req);
+
+      // Store the access token response in the session
+      HttpSession httpSession = req.getSession();
+      storeAccessTokenResponseInSession(httpSession, oauthAccessTokenResponse);
+
+      // Resource ID mapping
+      String uniqueUserId = oauth2UserIdResolver.getUniqueUserId(
+          oauthAccessTokenResponse.getParam(PARAM_TOKEN_TYPE),
+          oauthAccessTokenResponse.getAccessToken(),
+          oauthAccessTokenResponse.getExpiresIn(),
+          oauthAccessTokenResponse.getRefreshToken(),
+          oauthAccessTokenResponse.getScope());
+
+      Optional<Long> optionalAuthenticatedResourceId = resourceIdResolver
+          .getResourceId(uniqueUserId);
+      if (!optionalAuthenticatedResourceId.isPresent()) {
+        logger.info("Unique user ID '" + uniqueUserId + "' cannot be mapped to Resource ID");
+        redirectToFailedUrl(resp);
+        return;
+      }
+
+      // Store the resource ID in the session
+      Long authenticatedResourceId = optionalAuthenticatedResourceId.get();
+      httpSession.setAttribute(
+          authenticationSessionAttributeNames.authenticatedResourceId(), authenticatedResourceId);
+
+      String providerName = req.getParameter("providerName");
+      String successUrlWithParams = successUrl;
+      if (providerName != null) {
+        if (successUrlWithParams.contains("?")) {
+          successUrlWithParams += "&providerName=" + providerName;
+        } else {
+          successUrlWithParams += "?providerName=" + providerName;
+        }
+      }
+      resp.sendRedirect(successUrlWithParams);
+
+    } catch (OAuth2Exception e) {
+      logger.info("Problem in authenticate process.", e);
+      redirectToFailedUrl(resp);
+      return;
+    }
   }
 
   @Override
@@ -125,65 +168,6 @@ public class OAuth2AuthenticationServlet extends HttpServlet
     return "oauth2.token.type";
   }
 
-  private OAuthAccessTokenResponse obtainAccessToken(final String authorizationCode)
-      throws OAuthSystemException, OAuthProblemException {
-    OAuthClientRequest request = OAuthClientRequest
-        .tokenLocation(oauth2Configuration.tokenEndpoint())
-        .setClientId(oauth2Configuration.clientId())
-        .setClientSecret(oauth2Configuration.clientSecret())
-        .setRedirectURI(oauth2Configuration.redirectEndpoint())
-        .setGrantType(GrantType.AUTHORIZATION_CODE)
-        .setCode(authorizationCode)
-        .buildBodyMessage();
-
-    OAuthClient client = new OAuthClient(new URLConnectionClient());
-    OAuthAccessTokenResponse oauthResponse =
-        client.accessToken(request, AccessTokenResponse.class);
-    return oauthResponse;
-  }
-
-  private void processOAuth2Response(final HttpServletRequest req,
-      final HttpServletResponse resp) throws IOException {
-    try {
-      // Authentication response from oauth server
-      OAuthAuthzResponse oar = OAuthAuthzResponse.oauthCodeAuthzResponse(req);
-
-      OAuthAccessTokenResponse oauthAccessTokenResponse = obtainAccessToken(oar.getCode());
-
-      // Store the access token response in the session
-      HttpSession httpSession = req.getSession();
-      storeAccessTokenResponseInSession(httpSession, oauthAccessTokenResponse);
-
-      // Resource ID mapping
-      String uniqueUserId = oauth2UserIdResolver.getUniqueUserId(
-          oauthAccessTokenResponse.getParam(PARAM_TOKEN_TYPE),
-          oauthAccessTokenResponse.getAccessToken(),
-          oauthAccessTokenResponse.getExpiresIn(),
-          oauthAccessTokenResponse.getRefreshToken(),
-          oauthAccessTokenResponse.getScope());
-
-      Optional<Long> optionalAuthenticatedResourceId = resourceIdResolver
-          .getResourceId(uniqueUserId);
-      if (!optionalAuthenticatedResourceId.isPresent()) {
-        logger.info("Unique user ID '" + uniqueUserId + "' cannot be mapped to Resource ID");
-        redirectToFailedUrl(resp);
-        return;
-      }
-
-      // Store the resource ID in the session
-      Long authenticatedResourceId = optionalAuthenticatedResourceId.get();
-      httpSession.setAttribute(
-          authenticationSessionAttributeNames.authenticatedResourceId(), authenticatedResourceId);
-
-      resp.sendRedirect(successUrl);
-
-    } catch (OAuthProblemException | OAuthSystemException e) {
-      logger.info("Problem in authenticate process.", e);
-      redirectToFailedUrl(resp);
-      return;
-    }
-  }
-
   private void redirectToFailedUrl(final HttpServletResponse resp) throws IOException {
     resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     resp.sendRedirect(failedUrl);
@@ -196,30 +180,18 @@ public class OAuth2AuthenticationServlet extends HttpServlet
     if (loginEndpointPath.equals(servletPath)) {
       startOAuth2Authentication(resp);
     } else if (redirectEndpointPath.equals(servletPath)) {
-      processOAuth2Response(req, resp);
+      continueOAuth2Authenticate(req, resp);
     }
   }
 
   private void startOAuth2Authentication(final HttpServletResponse resp) throws IOException {
-    try {
-      // Authentication (to redirect oauth server).
-      OAuthClientRequest request = OAuthClientRequest
-          .authorizationLocation(oauth2Configuration.authorizationEndpoint())
-          .setClientId(oauth2Configuration.clientId())
-          .setRedirectURI(oauth2Configuration.redirectEndpoint())
-          .setResponseType(ResponseType.CODE.toString())
-          .setScope(oauth2Configuration.scope())
-          .buildQueryMessage();
-
-      resp.sendRedirect(request.getLocationUri());
-    } catch (OAuthSystemException e) {
-      // not throw in implementation
-      // (org.apache.oltu.oauth2.common.parameters.QueryParameterApplier)
-    }
+    // Authentication (to redirect oauth server).
+    String url = oauth2Communicator.getAuthorizationUriWithParams();
+    resp.sendRedirect(url);
   }
 
   private void storeAccessTokenResponseInSession(final HttpSession httpSession,
-      final OAuthAccessTokenResponse oauthAccessTokenResponse) {
+      final AccessTokenResponse oauthAccessTokenResponse) {
     String accessToken = oauthAccessTokenResponse.getAccessToken();
     httpSession.setAttribute(oauth2AccessToken(), accessToken);
 
