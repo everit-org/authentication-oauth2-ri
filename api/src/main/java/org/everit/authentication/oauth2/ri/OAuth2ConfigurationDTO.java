@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri.dto;
+package org.everit.authentication.oauth2.ri;
 
+/**
+ * Provides OAuth2 server configurations.
+ */
 public class OAuth2ConfigurationDTO {
 
   public String authorizationEndpoint;

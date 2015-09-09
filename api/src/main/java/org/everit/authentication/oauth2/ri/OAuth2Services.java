@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri.exception;
+package org.everit.authentication.oauth2.ri;
 
-public class OAuth2Exception extends RuntimeException {
+import org.everit.authentication.oauth2.OAuth2UserIdResolver;
+import org.everit.osgi.resource.resolver.ResourceIdResolver;
 
-  private static final long serialVersionUID = 6303524723226539382L;
-
-  public OAuth2Exception(final String message, final Throwable cause) {
-    super(message, cause);
-  }
+/**
+ * Provides {@link OAuth2Communicator}, {@link ResourceIdResolver} and {@link OAuth2UserIdResolver}
+ * interfaces.
+ */
+public interface OAuth2Services extends OAuth2Communicator, ResourceIdResolver,
+    OAuth2UserIdResolver {
 
 }

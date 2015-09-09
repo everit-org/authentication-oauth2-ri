@@ -17,12 +17,25 @@ package org.everit.authentication.oauth2.ri;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.everit.authentication.oauth2.ri.dto.AccessTokenResponse;
-import org.everit.authentication.oauth2.ri.exception.OAuth2Exception;
-
+/**
+ * Responsible to provide information from OAuth2 server.
+ */
 public interface OAuth2Communicator {
 
-  AccessTokenResponse getAccessToken(HttpServletRequest req) throws OAuth2Exception;
+  /**
+   * Gets (obtain) access token from OAuth2 server.
+   *
+   * @param req
+   *          the {@link HttpServletRequest} which contains Auth2 server response when redirect to
+   *          own server after authorize user.
+   * @return the {@link AccessTokenResponse}.
+   */
+  AccessTokenResponse getAccessToken(HttpServletRequest req);
 
-  String getAuthorizationUriWithParams() throws OAuth2Exception;
+  /**
+   * Gets OAuth2 server full authorization uri with parameters.
+   *
+   * @return the full authorization uri.
+   */
+  String getAuthorizationUriWithParams();
 }

@@ -45,7 +45,7 @@
     <addForeignKeyConstraint constraintName="fk_oauth2_user_mapping_resource"
       baseTableName="oauth2_user_mapping" baseColumnNames="resource_id" referencedTableName="res_resource"
       referencedColumnNames="resource_id" />
-    <addUniqueConstraint columnNames="provider_name, provider_unique_user_id"
+    <addUniqueConstraint constraintName="uc_oauth2_user_id" columnNames="provider_name, provider_unique_user_id"
       tableName="oauth2_user_mapping" />
 
   </changeSet>

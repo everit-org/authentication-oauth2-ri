@@ -16,6 +16,9 @@
 package org.everit.authentication.oauth2.ri.internal;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -25,11 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.everit.authentication.oauth2.OAuth2UserIdResolver;
+import org.everit.authentication.oauth2.ri.AccessTokenResponse;
+import org.everit.authentication.oauth2.ri.OAuth2AuthenticationServletParameter;
 import org.everit.authentication.oauth2.ri.OAuth2Communicator;
 import org.everit.authentication.oauth2.ri.OAuth2SessionAttributeNames;
-import org.everit.authentication.oauth2.ri.dto.AccessTokenResponse;
-import org.everit.authentication.oauth2.ri.dto.OAuth2AuthenticationServletParameter;
-import org.everit.authentication.oauth2.ri.exception.OAuth2Exception;
 import org.everit.osgi.authentication.http.session.AuthenticationSessionAttributeNames;
 import org.everit.osgi.resource.resolver.ResourceIdResolver;
 import org.everit.web.servlet.HttpServlet;
@@ -43,7 +45,7 @@ import org.slf4j.LoggerFactory;
 public class OAuth2AuthenticationServlet extends HttpServlet
     implements OAuth2SessionAttributeNames {
 
-  private static final String PARAM_TOKEN_TYPE = "token_type";
+  private static final String PARAM_PROVIDER_NAME = "providerName";
 
   private AuthenticationSessionAttributeNames authenticationSessionAttributeNames;
 
@@ -106,7 +108,7 @@ public class OAuth2AuthenticationServlet extends HttpServlet
 
       // Resource ID mapping
       String uniqueUserId = oauth2UserIdResolver.getUniqueUserId(
-          oauthAccessTokenResponse.getParam(PARAM_TOKEN_TYPE),
+          oauthAccessTokenResponse.getAccessTokenType(),
           oauthAccessTokenResponse.getAccessToken(),
           oauthAccessTokenResponse.getExpiresIn(),
           oauthAccessTokenResponse.getRefreshToken(),
@@ -125,21 +127,37 @@ public class OAuth2AuthenticationServlet extends HttpServlet
       httpSession.setAttribute(
           authenticationSessionAttributeNames.authenticatedResourceId(), authenticatedResourceId);
 
-      String providerName = req.getParameter("providerName");
+      String providerName = req.getParameter(PARAM_PROVIDER_NAME);
       String successUrlWithParams = successUrl;
       if (providerName != null) {
+        String encodedProviderName = encodeUrlParameter(providerName);
         if (successUrlWithParams.contains("?")) {
-          successUrlWithParams += "&providerName=" + providerName;
+          successUrlWithParams += "&" + PARAM_PROVIDER_NAME + "=" + encodedProviderName;
         } else {
-          successUrlWithParams += "?providerName=" + providerName;
+          successUrlWithParams += "?" + PARAM_PROVIDER_NAME + "=" + encodedProviderName;
         }
       }
       resp.sendRedirect(successUrlWithParams);
 
-    } catch (OAuth2Exception e) {
+    } catch (Exception e) {
       logger.info("Problem in authenticate process.", e);
       redirectToFailedUrl(resp);
       return;
+    }
+  }
+
+  /**
+   * Encode parameter.
+   *
+   * @param param
+   *          the parameter.
+   * @return the encoded parameter.
+   */
+  public String encodeUrlParameter(final String param) {
+    try {
+      return URLEncoder.encode(param, StandardCharsets.UTF_8.name());
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException(StandardCharsets.UTF_8.name() + " is unknown");
     }
   }
 
@@ -186,8 +204,14 @@ public class OAuth2AuthenticationServlet extends HttpServlet
 
   private void startOAuth2Authentication(final HttpServletResponse resp) throws IOException {
     // Authentication (to redirect oauth server).
-    String url = oauth2Communicator.getAuthorizationUriWithParams();
-    resp.sendRedirect(url);
+    try {
+      String url = oauth2Communicator.getAuthorizationUriWithParams();
+      resp.sendRedirect(url);
+    } catch (Exception e) {
+      logger.info("Problem when start authentication process.", e);
+      redirectToFailedUrl(resp);
+      return;
+    }
   }
 
   private void storeAccessTokenResponseInSession(final HttpSession httpSession,
@@ -205,7 +229,7 @@ public class OAuth2AuthenticationServlet extends HttpServlet
     String scope = oauthAccessTokenResponse.getScope();
     httpSession.setAttribute(oauth2Scope(), scope);
 
-    String tokenType = oauthAccessTokenResponse.getParam(PARAM_TOKEN_TYPE);
+    String tokenType = oauthAccessTokenResponse.getAccessTokenType();
     httpSession.setAttribute(oauth2TokenType(), tokenType);
   }
 

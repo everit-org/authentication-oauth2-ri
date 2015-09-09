@@ -30,9 +30,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 /**
- * The Google specific {@link OAuth2UserIdResolver} implementation.
+ * The default {@link OAuth2UserIdResolver} implementation. Tested in Google and Facebook.
  */
-public class GoogleOAuth2UserIdResolverImpl implements OAuth2UserIdResolver {
+public class DefaultOAuth2UserIdResolverImpl implements OAuth2UserIdResolver {
 
   private String userInformationRequestURI;
 
@@ -45,7 +45,7 @@ public class GoogleOAuth2UserIdResolverImpl implements OAuth2UserIdResolver {
    * @throws NullPointerException
    *           if one of the parameters is <code>null</code>.
    */
-  public GoogleOAuth2UserIdResolverImpl(final String userInformationRequestURI) {
+  public DefaultOAuth2UserIdResolverImpl(final String userInformationRequestURI) {
     this.userInformationRequestURI = Objects.requireNonNull(userInformationRequestURI,
         "The userInformationRequestURI cannot be null.");
   }
@@ -66,7 +66,6 @@ public class GoogleOAuth2UserIdResolverImpl implements OAuth2UserIdResolver {
       throw new RuntimeException(e);
     }
     JsonObject fromJson = new Gson().fromJson(resourceResponse.getBody(), JsonObject.class);
-    // the id is already unique.
     return fromJson.get("id").toString();
   }
 
