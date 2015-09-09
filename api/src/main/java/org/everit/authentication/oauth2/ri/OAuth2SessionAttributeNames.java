@@ -42,7 +42,7 @@ public interface OAuth2SessionAttributeNames {
   String oauth2Scope();
 
   /**
-   * Returns the session attribute name of the oauth2 token tpye.
+   * Returns the session attribute name of the oauth2 token type.
    */
   String oauth2TokenType();
 

@@ -79,7 +79,9 @@
               *
             </Import-Package>
             <Export-Package>
-              org.everit.authentication.oauth2.ri;version=1.0.0
+              org.everit.authentication.oauth2.ri;version=1.0.0,
+              org.everit.authentication.oauth2.ri.dto;version=1.0.0,
+              org.everit.authentication.oauth2.ri.exception;version=1.0.0
             </Export-Package>
           </instructions>
         </configuration>
@@ -102,6 +104,18 @@
       <groupId>org.everit.osgi</groupId>
       <artifactId>org.everit.osgi.resource.resolver.api</artifactId>
       <version>2.0.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.oltu.oauth2</groupId>
+      <artifactId>org.apache.oltu.oauth2.client</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>3.1.0</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
