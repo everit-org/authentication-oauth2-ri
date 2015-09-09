@@ -29,13 +29,13 @@ import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.response.OAuthAccessTokenResponse;
 import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
-import org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.everit.authentication.oauth2.OAuth2Configuration;
 import org.everit.authentication.oauth2.OAuth2UserIdResolver;
+import org.everit.authentication.oauth2.ri.OAuth2AuthenticationServletParameter;
 import org.everit.authentication.oauth2.ri.OAuth2SessionAttributeNames;
 import org.everit.osgi.authentication.http.session.AuthenticationSessionAttributeNames;
 import org.everit.osgi.resource.resolver.ResourceIdResolver;
@@ -73,49 +73,31 @@ public class OAuth2AuthenticationServlet extends HttpServlet
   /**
    * Constructor.
    *
-   * @param authenticationSessionAttributeNames
-   *          the {@link AuthenticationSessionAttributeNames} instance. Cannot be <code>null</code>!
-   * @param failedUrl
-   *          the URL where the user will be redirected by default in case of a failed
-   *          authentication. Cannot be <code>null</code>!
-   * @param loginEndpointPath
-   *          the servlet path where the user start authentication process.
-   * @param oauth2Configuration
-   *          the {@link OAuth2Configuration} instance. Cannot be <code>null</code>!
-   * @param redirectEndpointPath
-   *          the servlet path where the OAuth2 server redirect.
-   * @param oauth2UserIdResolver
-   *          the {@link OAuth2UserIdResolver} instance. Cannot be <code>null</code>!
-   * @param resourceIdResolver
-   *          the {@link ResourceIdResolver} instance. Cannot be <code>null</code>!
-   * @param successUrl
-   *          the URL where the user will be redirected by default in case of a successful
-   *          authentication. Cannot be <code>null</code>!
+   * @param parameters
+   *          the {@link OAuth2AuthenticationServletParameter} class with contains all requeired
+   *          parameters.
    *
    * @throws NullPointerException
    *           if one of the parameters is <code>null</code>.
    */
-  public OAuth2AuthenticationServlet(
-      final AuthenticationSessionAttributeNames authenticationSessionAttributeNames,
-      final String failedUrl, final String loginEndpointPath,
-      final OAuth2Configuration oauth2Configuration, final String redirectEndpointPath,
-      final OAuth2UserIdResolver oauth2UserIdResolver,
-      final ResourceIdResolver resourceIdResolver, final String successUrl) {
-    this.authenticationSessionAttributeNames =
-        Objects.requireNonNull(authenticationSessionAttributeNames,
+  public OAuth2AuthenticationServlet(final OAuth2AuthenticationServletParameter parameters) {
+    Objects.requireNonNull(parameters, "The parameters cannot be null.");
+
+    authenticationSessionAttributeNames =
+        Objects.requireNonNull(parameters.authenticationSessionAttributeNames,
             "The authenticationSessionAttributeNames cannot be null.");
-    this.failedUrl = Objects.requireNonNull(failedUrl, "The failedUrl cannot be null.");
-    this.loginEndpointPath = Objects.requireNonNull(loginEndpointPath,
+    failedUrl = Objects.requireNonNull(parameters.failedUrl, "The failedUrl cannot be null.");
+    loginEndpointPath = Objects.requireNonNull(parameters.loginEndpointPath,
         "The loginEndpointPath cannot be null.");
-    this.oauth2Configuration = Objects.requireNonNull(oauth2Configuration,
+    oauth2Configuration = Objects.requireNonNull(parameters.oauth2Configuration,
         "The oauth2Configuration cannot be null.");
-    this.redirectEndpointPath = Objects.requireNonNull(redirectEndpointPath,
+    redirectEndpointPath = Objects.requireNonNull(parameters.redirectEndpointPath,
         "The redirectEndpointPath cannot be null.");
-    this.oauth2UserIdResolver = Objects.requireNonNull(oauth2UserIdResolver,
+    oauth2UserIdResolver = Objects.requireNonNull(parameters.oauth2UserIdResolver,
         "The oauth2UserIdResolver cannot be null.");
-    this.resourceIdResolver = Objects.requireNonNull(resourceIdResolver,
+    resourceIdResolver = Objects.requireNonNull(parameters.resourceIdResolver,
         "The resourceIdResolver cannot be null.");
-    this.successUrl = Objects.requireNonNull(successUrl, "The successUrl cannot be null.");
+    successUrl = Objects.requireNonNull(parameters.successUrl, "The successUrl cannot be null.");
   }
 
   @Override
@@ -154,10 +136,9 @@ public class OAuth2AuthenticationServlet extends HttpServlet
         .setCode(authorizationCode)
         .buildBodyMessage();
 
-    // TODO text/plain response not work (example: facebook)
     OAuthClient client = new OAuthClient(new URLConnectionClient());
     OAuthAccessTokenResponse oauthResponse =
-        client.accessToken(request, OAuthJSONAccessTokenResponse.class);
+        client.accessToken(request, AccessTokenResponse.class);
     return oauthResponse;
   }
 
@@ -182,7 +163,7 @@ public class OAuth2AuthenticationServlet extends HttpServlet
           oauthAccessTokenResponse.getScope());
 
       Optional<Long> optionalAuthenticatedResourceId = resourceIdResolver
-          .getResourceId(oauth2Configuration.providerName() + ";" + uniqueUserId);
+          .getResourceId(uniqueUserId);
       if (!optionalAuthenticatedResourceId.isPresent()) {
         logger.info("Unique user ID '" + uniqueUserId + "' cannot be mapped to Resource ID");
         redirectToFailedUrl(resp);
@@ -217,9 +198,6 @@ public class OAuth2AuthenticationServlet extends HttpServlet
     } else if (redirectEndpointPath.equals(servletPath)) {
       processOAuth2Response(req, resp);
     }
-    // if oauthLogout
-    // 1. oauth logout
-    // 2. resp.sendRedirect(http session logout url)
   }
 
   private void startOAuth2Authentication(final HttpServletResponse resp) throws IOException {
