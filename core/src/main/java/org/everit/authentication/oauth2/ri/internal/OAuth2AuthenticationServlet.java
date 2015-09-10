@@ -205,7 +205,7 @@ public class OAuth2AuthenticationServlet extends HttpServlet
   private void startOAuth2Authentication(final HttpServletResponse resp) throws IOException {
     // Authentication (to redirect oauth server).
     try {
-      String url = oauth2Communicator.getAuthorizationUriWithParams();
+      String url = oauth2Communicator.buildAuthorizationUri();
       resp.sendRedirect(url);
     } catch (Exception e) {
       logger.info("Problem when start authentication process.", e);
