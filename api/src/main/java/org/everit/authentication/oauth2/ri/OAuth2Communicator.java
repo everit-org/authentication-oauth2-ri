@@ -23,6 +23,13 @@ import javax.servlet.http.HttpServletRequest;
 public interface OAuth2Communicator {
 
   /**
+   * Build full authorization uri with parameters to OAuth2 server.
+   *
+   * @return the full authorization uri.
+   */
+  String buildAuthorizationUri();
+
+  /**
    * Gets (obtain) access token from OAuth2 server.
    *
    * @param req
@@ -31,11 +38,4 @@ public interface OAuth2Communicator {
    * @return the {@link AccessTokenResponse}.
    */
   AccessTokenResponse getAccessToken(HttpServletRequest req);
-
-  /**
-   * Gets OAuth2 server full authorization uri with parameters.
-   *
-   * @return the full authorization uri.
-   */
-  String getAuthorizationUriWithParams();
 }

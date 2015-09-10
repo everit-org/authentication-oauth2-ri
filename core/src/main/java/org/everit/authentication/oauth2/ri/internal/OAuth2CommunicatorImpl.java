@@ -44,6 +44,25 @@ public class OAuth2CommunicatorImpl implements OAuth2Communicator {
   }
 
   @Override
+  public String buildAuthorizationUri() {
+    OAuthClientRequest request;
+    try {
+      request = OAuthClientRequest
+          .authorizationLocation(oauth2Configuration.authorizationEndpoint)
+          .setClientId(oauth2Configuration.clientId)
+          .setRedirectURI(oauth2Configuration.redirectEndpoint)
+          .setResponseType(ResponseType.CODE.toString())
+          .setScope(oauth2Configuration.scope)
+          .buildQueryMessage();
+    } catch (OAuthSystemException e) {
+      // not throw in implementation
+      // (org.apache.oltu.oauth2.common.parameters.QueryParameterApplier)
+      throw new RuntimeException("Problem with authorization uri create.", e);
+    }
+    return request.getLocationUri();
+  }
+
+  @Override
   public AccessTokenResponse getAccessToken(final HttpServletRequest req) {
     AccessTokenResponse oauthResponse = null;
     try {
@@ -63,25 +82,6 @@ public class OAuth2CommunicatorImpl implements OAuth2Communicator {
       throw new RuntimeException("Problem with obtain access token from OAuth2 server", e);
     }
     return oauthResponse;
-  }
-
-  @Override
-  public String getAuthorizationUriWithParams() {
-    OAuthClientRequest request;
-    try {
-      request = OAuthClientRequest
-          .authorizationLocation(oauth2Configuration.authorizationEndpoint)
-          .setClientId(oauth2Configuration.clientId)
-          .setRedirectURI(oauth2Configuration.redirectEndpoint)
-          .setResponseType(ResponseType.CODE.toString())
-          .setScope(oauth2Configuration.scope)
-          .buildQueryMessage();
-    } catch (OAuthSystemException e) {
-      // not throw in implementation
-      // (org.apache.oltu.oauth2.common.parameters.QueryParameterApplier)
-      throw new RuntimeException("Problem with authorization uri create.", e);
-    }
-    return request.getLocationUri();
   }
 
 }
