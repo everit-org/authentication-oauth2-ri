@@ -27,10 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.everit.authentication.oauth2.OAuth2UserIdResolver;
-import org.everit.authentication.oauth2.ri.AccessTokenResponse;
+import org.everit.authentication.oauth2.AccessTokenResponse;
+import org.everit.authentication.oauth2.OAuth2Communicator;
 import org.everit.authentication.oauth2.ri.OAuth2AuthenticationServletParameter;
-import org.everit.authentication.oauth2.ri.OAuth2Communicator;
 import org.everit.authentication.oauth2.ri.OAuth2SessionAttributeNames;
 import org.everit.osgi.authentication.http.session.AuthenticationSessionAttributeNames;
 import org.everit.osgi.resource.resolver.ResourceIdResolver;
@@ -95,11 +94,21 @@ public class OAuth2AuthenticationServlet extends HttpServlet
     successUrl = Objects.requireNonNull(parameters.successUrl, "The successUrl cannot be null.");
   }
 
+  @Override
+  public String accessToken() {
+    return "oauth2.access.token";
+  }
+
+  @Override
+  public String accessTokenExpiresIn() {
+    return "oauth2.access.token.expires.in";
+  }
+
   private void continueOAuth2Authenticate(final HttpServletRequest req,
       final HttpServletResponse resp) throws IOException {
     try {
       // Authentication response from oauth server
-      AccessTokenResponse oauthAccessTokenResponse =
+      org.everit.authentication.oauth2.AccessTokenResponse oauthAccessTokenResponse =
           oauth2Communicator.getAccessToken(req);
 
       // Store the access token response in the session
@@ -161,34 +170,19 @@ public class OAuth2AuthenticationServlet extends HttpServlet
     }
   }
 
-  @Override
-  public String oauth2AccessToken() {
-    return "oauth2.access.token";
+  private void redirectToFailedUrl(final HttpServletResponse resp) throws IOException {
+    resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    resp.sendRedirect(failedUrl);
   }
 
   @Override
-  public String oauth2AccessTokenExpiresIn() {
-    return "oauth2.access.token.expires.in";
-  }
-
-  @Override
-  public String oauth2RefreshToken() {
+  public String refreshToken() {
     return "oauth2.refresh.token";
   }
 
   @Override
-  public String oauth2Scope() {
+  public String scope() {
     return "oauth2.scope";
-  }
-
-  @Override
-  public String oauth2TokenType() {
-    return "oauth2.token.type";
-  }
-
-  private void redirectToFailedUrl(final HttpServletResponse resp) throws IOException {
-    resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    resp.sendRedirect(failedUrl);
   }
 
   @Override
@@ -217,20 +211,25 @@ public class OAuth2AuthenticationServlet extends HttpServlet
   private void storeAccessTokenResponseInSession(final HttpSession httpSession,
       final AccessTokenResponse oauthAccessTokenResponse) {
     String accessToken = oauthAccessTokenResponse.getAccessToken();
-    httpSession.setAttribute(oauth2AccessToken(), accessToken);
+    httpSession.setAttribute(accessToken(), accessToken);
 
     Long expiresIn = oauthAccessTokenResponse.getExpiresIn();
-    httpSession.setAttribute(oauth2AccessTokenExpiresIn(),
+    httpSession.setAttribute(accessTokenExpiresIn(),
         expiresIn);
 
     String refreshToken = oauthAccessTokenResponse.getRefreshToken();
-    httpSession.setAttribute(oauth2RefreshToken(), refreshToken);
+    httpSession.setAttribute(refreshToken(), refreshToken);
 
     String scope = oauthAccessTokenResponse.getScope();
-    httpSession.setAttribute(oauth2Scope(), scope);
+    httpSession.setAttribute(scope(), scope);
 
     String tokenType = oauthAccessTokenResponse.getAccessTokenType();
-    httpSession.setAttribute(oauth2TokenType(), tokenType);
+    httpSession.setAttribute(tokenType(), tokenType);
+  }
+
+  @Override
+  public String tokenType() {
+    return "oauth2.token.type";
   }
 
 }

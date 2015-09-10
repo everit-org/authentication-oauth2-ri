@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri;
+package org.everit.authentication.oauth2.ri.internal;
 
 import org.apache.oltu.oauth2.client.response.OAuthAccessTokenResponse;
 import org.apache.oltu.oauth2.common.OAuth;
@@ -27,7 +27,7 @@ import org.apache.oltu.oauth2.common.utils.OAuthUtils;
 /**
  * Data holder of the Access Token Response.
  */
-public class AccessTokenResponse extends OAuthAccessTokenResponse {
+public class DefaultAccessTokenResponse extends OAuthAccessTokenResponse {
 
   private static final String PARAM_TOKEN_TYPE = "token_type";
 

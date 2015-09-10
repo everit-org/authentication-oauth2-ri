@@ -24,26 +24,26 @@ public interface OAuth2SessionAttributeNames {
   /**
    * Returns the session attribute name of the oauth2 access token.
    */
-  String oauth2AccessToken();
+  String accessToken();
 
   /**
    * Returns the session attribute name of the oauth2 access token expires in.
    */
-  String oauth2AccessTokenExpiresIn();
+  String accessTokenExpiresIn();
 
   /**
    * Returns the session attribute name of the oauth2 refresh token.
    */
-  String oauth2RefreshToken();
+  String refreshToken();
 
   /**
    * Returns the session attribute name of the oauth2 scope.
    */
-  String oauth2Scope();
+  String scope();
 
   /**
    * Returns the session attribute name of the oauth2 token type.
    */
-  String oauth2TokenType();
+  String tokenType();
 
 }
