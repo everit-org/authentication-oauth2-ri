@@ -16,12 +16,15 @@
     limitations under the License.
 
 -->
-<lqmg xmlns="http://everit.org/lqmg" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  defaultPackage="org.everit.authentication.oauth2.ri.schema.qdsl">
+<lqmg xmlns="http://everit.org/lqmg" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" defaultPackage="org.everit.authentication.oauth2.ri.schema.qdsl">
   <namingRules>
     <classNameRule>
-      <entity>oauth2_user_mapping</entity>
-      <class>OAuth2UserMapping</class>
+      <entity>oauth2_provider</entity>
+      <class>OAuth2Provider</class>
+    </classNameRule>
+    <classNameRule>
+      <entity>oauth2_resource_mapping</entity>
+      <class>OAuth2ResourceMapping</class>
     </classNameRule>
   </namingRules>
 </lqmg>

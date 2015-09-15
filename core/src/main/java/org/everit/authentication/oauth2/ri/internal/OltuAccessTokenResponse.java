@@ -23,11 +23,14 @@ import org.apache.oltu.oauth2.common.token.BasicOAuthToken;
 import org.apache.oltu.oauth2.common.token.OAuthToken;
 import org.apache.oltu.oauth2.common.utils.JSONUtils;
 import org.apache.oltu.oauth2.common.utils.OAuthUtils;
+import org.everit.authentication.oauth2.AccessTokenResponse;
 
 /**
  * Data holder of the Access Token Response.
  */
-public class DefaultAccessTokenResponse extends OAuthAccessTokenResponse {
+public class OltuAccessTokenResponse
+    extends OAuthAccessTokenResponse
+    implements AccessTokenResponse {
 
   private static final String PARAM_TOKEN_TYPE = "token_type";
 
@@ -36,6 +39,7 @@ public class DefaultAccessTokenResponse extends OAuthAccessTokenResponse {
     return getParam(OAuth.OAUTH_ACCESS_TOKEN);
   }
 
+  @Override
   public String getAccessTokenType() {
     return getParam(PARAM_TOKEN_TYPE);
   }

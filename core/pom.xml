@@ -76,15 +76,10 @@
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Import-Package>
-              org.everit.authentication.oauth2;version="[1.0,2)",
-              org.everit.authentication.oauth2.ri;version="[1.0,2)",
-              org.everit.authentication.oauth2.ri.dto;version="[1.0,2)",
-              org.everit.authentication.oauth2.ri.exception;version="[1.0,2)",
-              org.everit.authentication.oauth2.ri.schema.qdsl;version="[1.0,2)",
               *
             </Import-Package>
             <Export-Package>
-              org.everit.authentication.oauth2.ri.internal;version=1.0.0
+              org.everit.authentication.oauth2.ri;version=1.0.0
             </Export-Package>
           </instructions>
         </configuration>
@@ -95,7 +90,7 @@
   <dependencies>
     <dependency>
       <groupId>org.everit.authentication</groupId>
-      <artifactId>org.everit.authentication.oauth2.ri.api</artifactId>
+      <artifactId>org.everit.authentication.oauth2.api</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -103,7 +98,11 @@
       <artifactId>org.everit.authentication.oauth2.ri.schema</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.everit.osgi</groupId>
+      <artifactId>org.everit.osgi.authentication.http.session</artifactId>
+      <version>2.0.1</version>
+    </dependency>
     <dependency>
       <groupId>org.everit.web</groupId>
       <artifactId>org.everit.web.servlet</artifactId>
@@ -120,11 +119,10 @@
       <version>1.0.0</version>
     </dependency>
     <dependency>
-      <groupId>org.everit.osgi</groupId>
-      <artifactId>org.everit.osgi.transaction.helper</artifactId>
-      <version>2.0.1</version>
+      <groupId>org.apache.oltu.oauth2</groupId>
+      <artifactId>org.apache.oltu.oauth2.client</artifactId>
+      <version>1.0.0</version>
     </dependency>
-
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
