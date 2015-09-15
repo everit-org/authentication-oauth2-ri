@@ -169,7 +169,8 @@ public class OAuth2AuthenticationServlet
   private void storeAccessTokenResponseInSession(final HttpSession httpSession,
       final AccessTokenResponse oauthAccessTokenResponse) {
     httpSession.setAttribute(
-        oAuth2SessionAttributeNames.providerName(), oauth2Communicator.getProviderName());
+        oAuth2SessionAttributeNames.providerName(),
+        oauth2Communicator.getProviderName());
     httpSession.setAttribute(
         oAuth2SessionAttributeNames.accessToken(),
         oauthAccessTokenResponse.getAccessToken());

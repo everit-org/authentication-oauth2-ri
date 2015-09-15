@@ -46,25 +46,44 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2OltuCommunicatorImpl.class);
 
-  private final OAuth2ConfigurationParam configuration;
+  public final String authorizationEndpoint;
+
+  public final String clientId;
+
+  public final String clientSecret;
+
+  public final String providerName;
+
+  public final String scope;
+
+  public final String tokenEndpoint;
 
   private final String userInformationRequestURI;
 
   /**
    * Constructor.
    *
-   * @param configuration
-   *          the configuration used for communication
    * @param userInformationRequestURI
    *          the request URI from which we obtain the unique user ID
    *
    * @throws NullPointerException
    *           if one of the parameters is <code>null</code>.
    */
-  public OAuth2OltuCommunicatorImpl(final OAuth2ConfigurationParam configuration,
-      final String userInformationRequestURI) {
-    this.configuration = Objects.requireNonNull(configuration,
-        "configuration cannot be null");
+  public OAuth2OltuCommunicatorImpl(final String providerName, final String clientId,
+      final String clientSecret, final String authorizationEndpoint, final String tokenEndpoint,
+      final String scope, final String userInformationRequestURI) {
+    this.providerName = Objects.requireNonNull(providerName,
+        "providerName cannot be null");
+    this.clientId = Objects.requireNonNull(clientId,
+        "clientId cannot be null");
+    this.clientSecret = Objects.requireNonNull(clientSecret,
+        "clientSecret cannot be null");
+    this.authorizationEndpoint = Objects.requireNonNull(authorizationEndpoint,
+        "authorizationEndpoint cannot be null");
+    this.tokenEndpoint = Objects.requireNonNull(tokenEndpoint,
+        "tokenEndpoint cannot be null");
+    this.scope = Objects.requireNonNull(scope,
+        "scope cannot be null");
     this.userInformationRequestURI = Objects.requireNonNull(userInformationRequestURI,
         "userInformationRequestURI cannot be null");
   }
@@ -73,11 +92,11 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
   public String buildAuthorizationUri(final String redirectUri) {
     try {
       return OAuthClientRequest
-          .authorizationLocation(configuration.authorizationEndpoint)
-          .setClientId(configuration.clientId)
+          .authorizationLocation(authorizationEndpoint)
+          .setClientId(clientId)
           .setRedirectURI(redirectUri)
           .setResponseType(ResponseType.CODE.toString())
-          .setScope(configuration.scope)
+          .setScope(scope)
           .buildQueryMessage()
           .getLocationUri();
     } catch (OAuthSystemException e) {
@@ -87,7 +106,7 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
 
   @Override
   public String getProviderName() {
-    return configuration.providerName;
+    return providerName;
   }
 
   @Override
@@ -124,9 +143,9 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
       OAuthAuthzResponse oar = OAuthAuthzResponse.oauthCodeAuthzResponse(req);
 
       OAuthClientRequest request = OAuthClientRequest
-          .tokenLocation(configuration.tokenEndpoint)
-          .setClientId(configuration.clientId)
-          .setClientSecret(configuration.clientSecret)
+          .tokenLocation(tokenEndpoint)
+          .setClientId(clientId)
+          .setClientSecret(clientSecret)
           .setRedirectURI(redirectUri)
           .setGrantType(GrantType.AUTHORIZATION_CODE)
           .setCode(oar.getCode())
