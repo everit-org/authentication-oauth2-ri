@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Handles the OAuth2 authorization requests.
+ * Handles the OAuth2 Authorization process and integrates it to the Everit Authentication process.
  */
 public class OAuth2AuthenticationServlet
     extends HttpServlet {
@@ -57,6 +57,27 @@ public class OAuth2AuthenticationServlet
 
   /**
    * Constructor.
+   *
+   * @param successUrl
+   *          the URL where the user will be redirected in case of successful OAuth2 authorization
+   * @param failedUrl
+   *          the URL where the user will be redirected in case of failed OAuth2 authorization
+   * @param processRequestTokenPathInfo
+   *          the path info of the servlet that is used to create the redirect URL for the OAuth2
+   *          Server
+   * @param oauth2Communicator
+   *          used to communicate with the OAuth2 Server
+   * @param resourceIdResolver
+   *          used to map the user ID provided by the OAuth2 Server to a resource ID
+   * @param authenticationSessionAttributeNames
+   *          the session attribute name provider used to store the authenticated resource ID in the
+   *          HTTP Session
+   * @param oAuth2SessionAttributeNames
+   *          the session attribute name provider used to store the OAuth2 specific information in
+   *          the HTTP Session
+   *
+   * @throws NullPointerException
+   *           if one of the parameter is <code>null</code>.
    */
   public OAuth2AuthenticationServlet(
       final String successUrl,
@@ -83,23 +104,23 @@ public class OAuth2AuthenticationServlet
         "oAuth2SessionAttributeNames cannot be null");
   }
 
-  private String buildRedirectUri(final HttpServletRequest req) {
-    StringBuffer redirectUri = req.getRequestURL();
+  private String buildRedirectURL(final HttpServletRequest req) {
+    StringBuffer redirectURL = req.getRequestURL();
     String pathInfo = req.getPathInfo();
     if ((pathInfo == null) || !pathInfo.equals(processRequestTokenPathInfo)) {
-      redirectUri.append(processRequestTokenPathInfo);
+      redirectURL.append(processRequestTokenPathInfo);
     }
-    return redirectUri.toString();
+    return redirectURL.toString();
   }
 
   private void processRequestToken(final HttpServletRequest req, final HttpServletResponse resp)
       throws IOException {
 
-    String redirectUri = buildRedirectUri(req);
+    String redirectURL = buildRedirectURL(req);
 
-    // Access token
+    // Get access token
     Optional<AccessTokenResponse> optionalAccessTokenResponse =
-        oauth2Communicator.readAccessToken(req, redirectUri);
+        oauth2Communicator.getAccessToken(req, redirectURL);
     if (!optionalAccessTokenResponse.isPresent()) {
       redirectToFailedUrl(resp, "Failed to retrieve access token.");
       return;
@@ -109,9 +130,9 @@ public class OAuth2AuthenticationServlet
 
     // Store the access token response in the session
     HttpSession httpSession = req.getSession();
-    storeAccessTokenResponseInSession(httpSession, accessTokenResponse);
+    storeSessionAttributes(httpSession, accessTokenResponse);
 
-    // Unique user ID
+    // Get unique user ID
     Optional<String> optionalUniqueUserId =
         oauth2Communicator.getUniqueUserId(accessTokenResponse);
     if (!optionalUniqueUserId.isPresent()) {
@@ -147,9 +168,9 @@ public class OAuth2AuthenticationServlet
 
   private void redirectToOAuthAuthorization(final HttpServletRequest req,
       final HttpServletResponse resp) throws IOException {
-    String redirectUri = buildRedirectUri(req);
-    String authorizationUrl = oauth2Communicator.buildAuthorizationUri(redirectUri);
-    resp.sendRedirect(authorizationUrl);
+    String redirectURL = buildRedirectURL(req);
+    String authorizationURL = oauth2Communicator.buildAuthorizationURL(redirectURL);
+    resp.sendRedirect(authorizationURL);
   }
 
   @Override
@@ -166,7 +187,7 @@ public class OAuth2AuthenticationServlet
 
   }
 
-  private void storeAccessTokenResponseInSession(final HttpSession httpSession,
+  private void storeSessionAttributes(final HttpSession httpSession,
       final AccessTokenResponse oauthAccessTokenResponse) {
     httpSession.setAttribute(
         oAuth2SessionAttributeNames.providerName(),

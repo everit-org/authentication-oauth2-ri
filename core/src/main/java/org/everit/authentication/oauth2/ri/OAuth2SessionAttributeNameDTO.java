@@ -18,21 +18,22 @@ package org.everit.authentication.oauth2.ri;
 import org.everit.authentication.oauth2.OAuth2SessionAttributeNames;
 
 /**
- * DTO for holding session attribute names used by the OAuth2 API.
+ * DTO for holding session attribute names used by the
+ * {@link org.everit.authentication.oauth2.ri.OAuth2AuthenticationServlet}.
  */
 public class OAuth2SessionAttributeNameDTO implements OAuth2SessionAttributeNames {
 
-  public final String sessionAttrNameAccessToken;
+  private final String sessionAttrNameAccessToken;
 
-  public final String sessionAttrNameAccessTokenType;
+  private final String sessionAttrNameAccessTokenType;
 
-  public final String sessionAttrNameExpiresIn;
+  private final String sessionAttrNameExpiresIn;
 
-  public final String sessionAttrNameProviderName;
+  private final String sessionAttrNameProviderName;
 
-  public final String sessionAttrNameRefreshToken;
+  private final String sessionAttrNameRefreshToken;
 
-  public final String sessionAttrNameScope;
+  private final String sessionAttrNameScope;
 
   /**
    * Constructor.

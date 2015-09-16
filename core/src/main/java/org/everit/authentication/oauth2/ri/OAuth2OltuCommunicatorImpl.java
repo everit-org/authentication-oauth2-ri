@@ -46,7 +46,7 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2OltuCommunicatorImpl.class);
 
-  public final String authorizationEndpoint;
+  public final String authorizationEndpointURL;
 
   public final String clientId;
 
@@ -56,43 +56,57 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
 
   public final String scope;
 
-  public final String tokenEndpoint;
+  public final String tokenEndpointURL;
 
-  private final String userInformationRequestURI;
+  private final String userInformationRequestURL;
 
   /**
    * Constructor.
    *
-   * @param userInformationRequestURI
-   *          the request URI from which we obtain the unique user ID
+   * @param providerName
+   *          the name of the provider used by this instance
+   * @param clientId
+   *          the client ID provided by the OAuth2 Server application registration
+   * @param clientSecret
+   *          the client secret provided by the OAuth2 Server application registration
+   * @param authorizationEndpointURL
+   *          the URL of the OAuth2 Server Authorization Endpoint
+   * @param tokenEndpointURL
+   *          the URL of the OAuth2 Server Token Endpoint
+   * @param scope
+   *          the OAuth2 scopes requested by the application from the OAuth2 Server
+   * @param userInformationRequestURL
+   *          the URL of the OAuth2 server that provides information from the user. This URL is used
+   *          to query the user ID on the OAuth2 Server side.
    *
    * @throws NullPointerException
-   *           if one of the parameters is <code>null</code>.
+   *           if one of the parameter is <code>null</code>.
    */
   public OAuth2OltuCommunicatorImpl(final String providerName, final String clientId,
-      final String clientSecret, final String authorizationEndpoint, final String tokenEndpoint,
-      final String scope, final String userInformationRequestURI) {
+      final String clientSecret, final String authorizationEndpointURL,
+      final String tokenEndpointURL,
+      final String scope, final String userInformationRequestURL) {
     this.providerName = Objects.requireNonNull(providerName,
         "providerName cannot be null");
     this.clientId = Objects.requireNonNull(clientId,
         "clientId cannot be null");
     this.clientSecret = Objects.requireNonNull(clientSecret,
         "clientSecret cannot be null");
-    this.authorizationEndpoint = Objects.requireNonNull(authorizationEndpoint,
-        "authorizationEndpoint cannot be null");
-    this.tokenEndpoint = Objects.requireNonNull(tokenEndpoint,
-        "tokenEndpoint cannot be null");
+    this.authorizationEndpointURL = Objects.requireNonNull(authorizationEndpointURL,
+        "authorizationEndpointURL cannot be null");
+    this.tokenEndpointURL = Objects.requireNonNull(tokenEndpointURL,
+        "tokenEndpointURL cannot be null");
     this.scope = Objects.requireNonNull(scope,
         "scope cannot be null");
-    this.userInformationRequestURI = Objects.requireNonNull(userInformationRequestURI,
-        "userInformationRequestURI cannot be null");
+    this.userInformationRequestURL = Objects.requireNonNull(userInformationRequestURL,
+        "userInformationRequestURL cannot be null");
   }
 
   @Override
-  public String buildAuthorizationUri(final String redirectUri) {
+  public String buildAuthorizationURL(final String redirectUri) {
     try {
       return OAuthClientRequest
-          .authorizationLocation(authorizationEndpoint)
+          .authorizationLocation(authorizationEndpointURL)
           .setClientId(clientId)
           .setRedirectURI(redirectUri)
           .setResponseType(ResponseType.CODE.toString())
@@ -101,6 +115,32 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
           .getLocationUri();
     } catch (OAuthSystemException e) {
       throw new RuntimeException("Failed to build the authorization uri.", e);
+    }
+  }
+
+  @Override
+  public Optional<AccessTokenResponse> getAccessToken(final HttpServletRequest req,
+      final String redirectUri) {
+
+    try {
+      OAuthAuthzResponse oar = OAuthAuthzResponse.oauthCodeAuthzResponse(req);
+
+      OAuthClientRequest request = OAuthClientRequest
+          .tokenLocation(tokenEndpointURL)
+          .setClientId(clientId)
+          .setClientSecret(clientSecret)
+          .setRedirectURI(redirectUri)
+          .setGrantType(GrantType.AUTHORIZATION_CODE)
+          .setCode(oar.getCode())
+          .buildBodyMessage();
+
+      OAuthClient client = new OAuthClient(new URLConnectionClient());
+      return Optional.of(client.accessToken(request, OltuAccessTokenResponse.class));
+
+    } catch (OAuthSystemException | OAuthProblemException e) {
+
+      LOGGER.error("Authentication failed.", e);
+      return Optional.empty();
     }
   }
 
@@ -118,7 +158,7 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
 
     try {
       OAuthClientRequest resourceRequest =
-          new OAuthBearerClientRequest(userInformationRequestURI)
+          new OAuthBearerClientRequest(userInformationRequestURL)
               .setAccessToken(accessToken)
               .buildHeaderMessage();
 
@@ -133,32 +173,6 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
 
     JsonObject fromJson = new Gson().fromJson(resourceResponse.getBody(), JsonObject.class);
     return Optional.of(fromJson.get("id").toString());
-  }
-
-  @Override
-  public Optional<AccessTokenResponse> readAccessToken(final HttpServletRequest req,
-      final String redirectUri) {
-
-    try {
-      OAuthAuthzResponse oar = OAuthAuthzResponse.oauthCodeAuthzResponse(req);
-
-      OAuthClientRequest request = OAuthClientRequest
-          .tokenLocation(tokenEndpoint)
-          .setClientId(clientId)
-          .setClientSecret(clientSecret)
-          .setRedirectURI(redirectUri)
-          .setGrantType(GrantType.AUTHORIZATION_CODE)
-          .setCode(oar.getCode())
-          .buildBodyMessage();
-
-      OAuthClient client = new OAuthClient(new URLConnectionClient());
-      return Optional.of(client.accessToken(request, OltuAccessTokenResponse.class));
-
-    } catch (OAuthSystemException | OAuthProblemException e) {
-
-      LOGGER.error("Authentication failed.", e);
-      return Optional.empty();
-    }
   }
 
 }

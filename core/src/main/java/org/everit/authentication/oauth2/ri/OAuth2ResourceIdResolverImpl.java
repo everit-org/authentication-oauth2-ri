@@ -31,16 +31,25 @@ import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.dml.SQLInsertClause;
 
 /**
- * Default OAuth2 specific {@link ResourceIdResolver}.
+ * OAuth2 specific {@link ResourceIdResolver} configured to a dedicated provider. This
+ * implementation manages the {@link QOAuth2Provider} and {@link QOAuth2ResourceMapping} tables. It
+ * lazily initializes:
+ * <ul>
+ * <li>the {@link QOAuth2Provider} by the configured provider name and</li>
+ * <li>the {@link QOAuth2ResourceMapping} if the given provider and the unique user ID is not mapped
+ * to a {@link QResource}.</li>
+ * </ul>
  */
 public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
   private static final String PROP_LOCK_RESOURCE_ID =
       "org.everit.authentication.oauth2.ri.resource.mapping.lock.resource.id";
 
-  private final long oauth2ProviderId;
-
   private final PropertyManager propertyManager;
+
+  private final long providerId;
+
+  private final String providerName;
 
   private final QuerydslSupport querydslSupport;
 
@@ -53,10 +62,26 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
   /**
    * Constructor.
+   *
+   * @param providerName
+   *          the name of the provider used by this instance
+   * @param propertyManager
+   *          a {@link PropertyManager} used to store the resource ID used for locking the creation
+   *          of the resource mappings
+   * @param resourceService
+   *          a {@link ResourceService} used to create a new resource ID if the resource mapping
+   *          does not exist
+   * @param transactionHelper
+   *          a {@link TransactionHelper} instance
+   * @param querydslSupport
+   *          a {@link QuerydslSupport} instance
+   *
+   * @throws NullPointerException
+   *           if one of the parameter is <code>null</code>.
    */
-  public OAuth2ResourceIdResolverImpl(final PropertyManager propertyManager,
-      final QuerydslSupport querydslSupport, final ResourceService resourceService,
-      final TransactionHelper transactionHelper, final String providerName) {
+  public OAuth2ResourceIdResolverImpl(final String providerName,
+      final PropertyManager propertyManager, final ResourceService resourceService,
+      final TransactionHelper transactionHelper, final QuerydslSupport querydslSupport) {
     this.propertyManager = Objects.requireNonNull(propertyManager,
         "propertyManager cannot be null");
     this.querydslSupport = Objects.requireNonNull(querydslSupport,
@@ -65,9 +90,10 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
         "resourceService cannot be null");
     this.transactionHelper = Objects.requireNonNull(transactionHelper,
         "transactionHelper cannot be null");
-    Objects.requireNonNull(providerName, "providerName cannot be null");
+    this.providerName = Objects.requireNonNull(providerName,
+        "providerName cannot be null");
 
-    oauth2ProviderId = transactionHelper.required(() -> {
+    providerId = transactionHelper.required(() -> {
 
       String propResourceId = propertyManager.getProperty(PROP_LOCK_RESOURCE_ID);
       if (propResourceId == null) {
@@ -75,18 +101,18 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
         propertyManager.addProperty(PROP_LOCK_RESOURCE_ID, String.valueOf(resourceId));
       }
 
-      return getOrCreateProvider(providerName);
+      return getOrCreateProviderId();
     });
   }
 
-  private long getOrCreateProvider(final String providerName) {
+  private long getOrCreateProviderId() {
 
-    Long oauth2ProviderId = selectProviderId(providerName);
+    Long oauth2ProviderId = selectProviderId();
     if (oauth2ProviderId != null) {
       return oauth2ProviderId;
     }
 
-    return insertProvider(providerName);
+    return insertProvider();
   }
 
   private long getOrCreateResourceId(final String uniqueUserId) {
@@ -115,7 +141,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
     return Optional.ofNullable(resourceId);
   }
 
-  private long insertProvider(final String providerName) {
+  private long insertProvider() {
     return querydslSupport.execute((connection, configuration) -> {
 
       QOAuth2Provider qoAuth2Provider = QOAuth2Provider.oAuth2Provider;
@@ -136,7 +162,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
       new SQLInsertClause(connection, configuration, qoAuth2ResourceMapping)
           .set(qoAuth2ResourceMapping.resourceId, resourceId)
-          .set(qoAuth2ResourceMapping.oauth2ProviderId, oauth2ProviderId)
+          .set(qoAuth2ResourceMapping.oauth2ProviderId, providerId)
           .set(qoAuth2ResourceMapping.providerUniqueUserId, uniqueUserId)
           .execute();
 
@@ -161,7 +187,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
     });
   }
 
-  private Long selectProviderId(final String providerName) {
+  private Long selectProviderId() {
 
     return querydslSupport.execute((connection, configuration) -> {
 
@@ -182,7 +208,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
       return new SQLQuery(connection, configuration)
           .from(qoAuth2ResourceMapping)
-          .where(qoAuth2ResourceMapping.oauth2ProviderId.eq(oauth2ProviderId)
+          .where(qoAuth2ResourceMapping.oauth2ProviderId.eq(providerId)
               .and(qoAuth2ResourceMapping.providerUniqueUserId.eq(uniqueUserId)))
           .uniqueResult(qoAuth2ResourceMapping.resourceId);
     });
