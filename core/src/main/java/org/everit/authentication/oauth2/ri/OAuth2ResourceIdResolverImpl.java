@@ -25,7 +25,7 @@ import org.everit.osgi.querydsl.support.QuerydslSupport;
 import org.everit.osgi.resource.ResourceService;
 import org.everit.osgi.resource.resolver.ResourceIdResolver;
 import org.everit.osgi.resource.ri.schema.qdsl.QResource;
-import org.everit.osgi.transaction.helper.api.TransactionHelper;
+import org.everit.transaction.propagator.TransactionPropagator;
 
 import com.mysema.query.sql.SQLQuery;
 import com.mysema.query.sql.dml.SQLInsertClause;
@@ -55,10 +55,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
   private final ResourceService resourceService;
 
-  private final TransactionHelper transactionHelper;
-
-  // TODO use this instead of the transactionHelper
-  // private final TransactionPropagator transactionPropagator;
+  private final TransactionPropagator transactionPropagator;
 
   /**
    * Constructor.
@@ -71,8 +68,8 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
    * @param resourceService
    *          a {@link ResourceService} used to create a new resource ID if the resource mapping
    *          does not exist
-   * @param transactionHelper
-   *          a {@link TransactionHelper} instance
+   * @param transactionPropagator
+   *          a {@link TransactionPropagator} instance
    * @param querydslSupport
    *          a {@link QuerydslSupport} instance
    *
@@ -81,19 +78,19 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
    */
   public OAuth2ResourceIdResolverImpl(final String providerName,
       final PropertyManager propertyManager, final ResourceService resourceService,
-      final TransactionHelper transactionHelper, final QuerydslSupport querydslSupport) {
+      final TransactionPropagator transactionPropagator, final QuerydslSupport querydslSupport) {
     this.propertyManager = Objects.requireNonNull(propertyManager,
         "propertyManager cannot be null");
     this.querydslSupport = Objects.requireNonNull(querydslSupport,
         "querydslSupport cannot be null");
     this.resourceService = Objects.requireNonNull(resourceService,
         "resourceService cannot be null");
-    this.transactionHelper = Objects.requireNonNull(transactionHelper,
-        "transactionHelper cannot be null");
+    this.transactionPropagator = Objects.requireNonNull(transactionPropagator,
+        "transactionPropagator cannot be null");
     this.providerName = Objects.requireNonNull(providerName,
         "providerName cannot be null");
 
-    providerId = transactionHelper.required(() -> {
+    providerId = transactionPropagator.required(() -> {
 
       String propResourceId = propertyManager.getProperty(PROP_LOCK_RESOURCE_ID);
       if (propResourceId == null) {
@@ -122,7 +119,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
       return resourceId;
     }
 
-    return transactionHelper.required(() -> {
+    return transactionPropagator.required(() -> {
 
       lockMappingRegistration();
 
