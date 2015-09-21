@@ -23,7 +23,7 @@
   </parent>
 
   <groupId>org.everit.authentication</groupId>
-  <artifactId>org.everit.authentication.oauth2.ri</artifactId>
+  <artifactId>org.everit.authentication.oauth2.ri.api</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <packaging>bundle</packaging>
@@ -79,7 +79,7 @@
               *
             </Import-Package>
             <Export-Package>
-              org.everit.authentication.oauth2.ri.core;version=1.0.0
+              org.everit.authentication.oauth2.ri;version=1.0.0
             </Export-Package>
           </instructions>
         </configuration>
@@ -88,67 +88,6 @@
   </build>
 
   <dependencies>
-    <dependency>
-      <groupId>org.everit.osgi</groupId>
-      <artifactId>org.everit.osgi.resource.resolver.api</artifactId>
-      <version>2.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.everit.authentication</groupId>
-      <artifactId>org.everit.authentication.oauth2.api</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.everit.authentication</groupId>
-      <artifactId>org.everit.authentication.oauth2.ri.api</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.everit.authentication</groupId>
-      <artifactId>org.everit.authentication.oauth2.ri.schema</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.everit.osgi</groupId>
-      <artifactId>org.everit.osgi.authentication.http.session</artifactId>
-      <version>2.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.everit.web</groupId>
-      <artifactId>org.everit.web.servlet</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.everit.osgi</groupId>
-      <artifactId>org.everit.osgi.querydsl.support</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.everit.osgi</groupId>
-      <artifactId>org.everit.osgi.resource.api</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.everit.transaction</groupId>
-      <artifactId>org.everit.transaction.propagator.api</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.oltu.oauth2</groupId>
-      <artifactId>org.apache.oltu.oauth2.client</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>3.1.0</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
 </project>

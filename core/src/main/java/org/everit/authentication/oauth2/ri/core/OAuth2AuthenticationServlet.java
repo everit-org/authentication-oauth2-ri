@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri;
+package org.everit.authentication.oauth2.ri.core;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -26,7 +26,7 @@ import javax.servlet.http.HttpSession;
 
 import org.everit.authentication.oauth2.AccessTokenResponse;
 import org.everit.authentication.oauth2.OAuth2Communicator;
-import org.everit.authentication.oauth2.OAuth2SessionAttributeNames;
+import org.everit.authentication.oauth2.ri.OAuth2SessionAttributeNames;
 import org.everit.osgi.authentication.http.session.AuthenticationSessionAttributeNames;
 import org.everit.osgi.resource.resolver.ResourceIdResolver;
 import org.everit.web.servlet.HttpServlet;

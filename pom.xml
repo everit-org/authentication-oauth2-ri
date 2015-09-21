@@ -34,8 +34,9 @@
   </properties>
 
   <modules>
-    <module>core</module>
+    <module>api</module>
     <module>schema</module>
+    <module>core</module>
   </modules>
 
 </project>

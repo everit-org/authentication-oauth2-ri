@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri;
+package org.everit.authentication.oauth2.ri.core;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +32,7 @@ import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.everit.authentication.oauth2.AccessTokenResponse;
 import org.everit.authentication.oauth2.OAuth2Communicator;
-import org.everit.authentication.oauth2.ri.internal.OltuAccessTokenResponse;
+import org.everit.authentication.oauth2.ri.core.internal.OltuAccessTokenResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

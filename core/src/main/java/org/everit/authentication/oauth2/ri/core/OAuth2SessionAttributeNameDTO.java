@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.authentication.oauth2.ri;
+package org.everit.authentication.oauth2.ri.core;
 
-import org.everit.authentication.oauth2.OAuth2SessionAttributeNames;
+import org.everit.authentication.oauth2.ri.OAuth2SessionAttributeNames;
 
 /**
  * DTO for holding session attribute names used by the
