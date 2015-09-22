@@ -16,9 +16,6 @@ that controls the communication.
 
 The sample is available in the *sample* module of [authentication-oauth2-ri-ecm][7].
 
-# Concept
-The authentication concept is available on blog post [Everit Authentication][4].
-
 [1]: https://github.com/everit-org/authentication-oauth2-api
 [2]: http://oauth.net/2/
 [3]: https://everitorg.wordpress.com/2014/06/18/modularized-persistence/
