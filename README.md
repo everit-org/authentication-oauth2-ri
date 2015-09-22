@@ -1,7 +1,7 @@
 # authentication-oauth2-ri
 
-The reference implementation of the [authentication-oauth2-api][2] based on 
-[OAuth2][1] ([RFC6749][5]) integrated with [Everit Authentication][4] concept. 
+The reference implementation of the [authentication-oauth2-api][1] based on 
+[OAuth2][2] ([RFC6749][5]) integrated with [Everit Authentication][4] concept. 
 The implementation is independent from OAuth2 servers and was tested with 
 Google and Facebook.
 
