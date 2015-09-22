@@ -46,17 +46,17 @@ public class OAuth2OltuCommunicatorImpl implements OAuth2Communicator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2OltuCommunicatorImpl.class);
 
-  public final String authorizationEndpointURL;
+  private final String authorizationEndpointURL;
 
-  public final String clientId;
+  private final String clientId;
 
-  public final String clientSecret;
+  private final String clientSecret;
 
-  public final String providerName;
+  private final String providerName;
 
-  public final String scope;
+  private final String scope;
 
-  public final String tokenEndpointURL;
+  private final String tokenEndpointURL;
 
   private final String userInformationRequestURL;
 
