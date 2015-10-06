@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2011 Everit Kft. (http://www.everit.org)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.everit.authentication.oauth2.ri.schema.qdsl;
 
 import static com.mysema.query.types.PathMetadataFactory.*;
@@ -46,7 +31,7 @@ public class QOAuth2ResourceMapping extends com.mysema.query.sql.RelationalPathB
 
     public class ForeignKeys {
 
-        public final com.mysema.query.sql.ForeignKey<org.everit.osgi.resource.ri.schema.qdsl.QResource> oauth2ResourceMappingResourceFk = createForeignKey(resourceId, "resource_id");
+        public final com.mysema.query.sql.ForeignKey<org.everit.resource.ri.schema.qdsl.QResource> oauth2ResourceMappingResourceFk = createForeignKey(resourceId, "resource_id");
 
         public final com.mysema.query.sql.ForeignKey<QOAuth2Provider> oauth2ResourceMappingProviderFk = createForeignKey(oauth2ProviderId, "oauth2_provider_id");
 

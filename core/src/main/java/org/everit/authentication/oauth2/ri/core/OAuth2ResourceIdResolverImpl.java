@@ -20,11 +20,10 @@ import java.util.Optional;
 
 import org.everit.authentication.oauth2.ri.schema.qdsl.QOAuth2Provider;
 import org.everit.authentication.oauth2.ri.schema.qdsl.QOAuth2ResourceMapping;
-import org.everit.osgi.props.PropertyManager;
 import org.everit.osgi.querydsl.support.QuerydslSupport;
 import org.everit.osgi.resource.ResourceService;
-import org.everit.osgi.resource.resolver.ResourceIdResolver;
-import org.everit.osgi.resource.ri.schema.qdsl.QResource;
+import org.everit.resource.resolver.ResourceIdResolver;
+import org.everit.resource.ri.schema.qdsl.QResource;
 import org.everit.transaction.propagator.TransactionPropagator;
 
 import com.mysema.query.sql.SQLQuery;

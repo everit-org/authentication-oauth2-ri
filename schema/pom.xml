@@ -81,8 +81,8 @@
               org.everit.authentication.oauth2.ri.schema.qdsl;version=1.0.0
             </Export-Package>
             <Require-Capability>
-              liquibase.schema;filter:="(name=org.everit.osgi.resource.ri)",
-              liquibase.schema;filter:="(name=org.everit.osgi.props.ri)"
+              liquibase.schema;filter:="(name=org.everit.resource.ri)",
+              liquibase.schema;filter:="(name=org.everit.props.ri)"
             </Require-Capability>
             <Provide-Capability>
               liquibase.schema;name=org.everit.authentication.oauth2.ri;resource=/META-INF/liquibase/authentication.oauth2.liquibase.xml;lqmg.config.resource=/META-INF/liquibase/authentication.oauth2.lqmg.xml
@@ -130,14 +130,14 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.everit.osgi</groupId>
-      <artifactId>org.everit.osgi.resource.ri.schema.qdsl</artifactId>
+      <groupId>org.everit.resource</groupId>
+      <artifactId>org.everit.resource.ri.schema.qdsl</artifactId>
       <version>1.0.0</version>
     </dependency>
     <dependency>
-      <groupId>org.everit.osgi</groupId>
-      <artifactId>org.everit.osgi.props.ri</artifactId>
-      <version>2.0.0</version>
+      <groupId>org.everit.props</groupId>
+      <artifactId>org.everit.props.ri.schema.qdsl</artifactId>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 
