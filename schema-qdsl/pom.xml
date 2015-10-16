@@ -13,16 +13,17 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.everit.config</groupId>
     <artifactId>org.everit.config.oss</artifactId>
-    <version>7.0.1</version>
+    <version>7.1.0</version>
   </parent>
 
   <groupId>org.everit.authentication</groupId>
-  <artifactId>org.everit.authentication.oauth2.ri.schema</artifactId>
+  <artifactId>org.everit.authentication.oauth2.ri.schema.qdsl</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
   <packaging>bundle</packaging>
@@ -85,7 +86,7 @@
               liquibase.schema;filter:="(name=org.everit.props.ri)"
             </Require-Capability>
             <Provide-Capability>
-              liquibase.schema;name=org.everit.authentication.oauth2.ri;resource=/META-INF/liquibase/authentication.oauth2.liquibase.xml;lqmg.config.resource=/META-INF/liquibase/authentication.oauth2.lqmg.xml
+              liquibase.schema;name=org.everit.authentication.oauth2.ri;resource=/META-INF/liquibase/authentication.oauth2.ri.liquibase.xml;lqmg.config.resource=/META-INF/liquibase/authentication.oauth2.ri.lqmg.xml
             </Provide-Capability>
           </instructions>
         </configuration>

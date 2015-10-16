@@ -13,17 +13,18 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.everit.config</groupId>
     <artifactId>org.everit.config.oss</artifactId>
-    <version>7.0.1</version>
+    <version>7.1.0</version>
   </parent>
 
   <groupId>org.everit.authentication</groupId>
   <artifactId>org.everit.authentication.oauth2.ri.parent</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <packaging>pom</packaging>
 
@@ -35,7 +36,7 @@
 
   <modules>
     <module>api</module>
-    <module>schema</module>
+    <module>schema-qdsl</module>
     <module>core</module>
   </modules>
 

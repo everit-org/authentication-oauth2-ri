@@ -14,7 +14,8 @@ that controls the communication.
 
 # Sample
 
-The sample is available in the *sample* module of [authentication-oauth2-ri-ecm][7].
+A sample application is available in the *sample* module of 
+[authentication-oauth2-ri-ecm][7].
 
 [1]: https://github.com/everit-org/authentication-oauth2-api
 [2]: http://oauth.net/2/

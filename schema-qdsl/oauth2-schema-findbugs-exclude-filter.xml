@@ -18,7 +18,6 @@
 -->
 <FindBugsFilter>
   <Match>
-    org.everit.authentication.oauth2.ri.schema.qdsl
     <Package name="~org\.everit\.authentication\.oauth2\.ri\.schema\.qdsl.*" />
   </Match>
   <Match>

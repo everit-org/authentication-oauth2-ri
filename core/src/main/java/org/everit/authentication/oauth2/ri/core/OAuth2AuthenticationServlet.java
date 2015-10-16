@@ -24,11 +24,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.everit.authentication.http.session.AuthenticationSessionAttributeNames;
 import org.everit.authentication.oauth2.AccessTokenResponse;
 import org.everit.authentication.oauth2.OAuth2Communicator;
 import org.everit.authentication.oauth2.ri.OAuth2SessionAttributeNames;
-import org.everit.osgi.authentication.http.session.AuthenticationSessionAttributeNames;
-import org.everit.osgi.resource.resolver.ResourceIdResolver;
+import org.everit.resource.resolver.ResourceIdResolver;
 import org.everit.web.servlet.HttpServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
