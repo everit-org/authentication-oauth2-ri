@@ -15,15 +15,16 @@
  */
 package org.everit.authentication.oauth2.ri.schema.qdsl;
 
-import static com.mysema.query.types.PathMetadataFactory.*;
+import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.mysema.query.types.path.*;
+import com.querydsl.core.types.dsl.*;
 
-import com.mysema.query.types.PathMetadata;
+import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
-import com.mysema.query.types.Path;
+import com.querydsl.core.types.Path;
 
-import com.mysema.query.sql.ColumnMetadata;
+import com.querydsl.sql.ColumnMetadata;
+import java.sql.Types;
 
 
 
@@ -31,8 +32,8 @@ import com.mysema.query.sql.ColumnMetadata;
 /**
  * QOAuth2ResourceMapping is a Querydsl query type for QOAuth2ResourceMapping
  */
-@Generated("com.mysema.query.sql.codegen.MetaDataSerializer")
-public class QOAuth2ResourceMapping extends com.mysema.query.sql.RelationalPathBase<QOAuth2ResourceMapping> {
+@Generated("com.querydsl.sql.codegen.MetaDataSerializer")
+public class QOAuth2ResourceMapping extends com.querydsl.sql.RelationalPathBase<QOAuth2ResourceMapping> {
 
     private static final long serialVersionUID = -354370008;
 
@@ -40,15 +41,15 @@ public class QOAuth2ResourceMapping extends com.mysema.query.sql.RelationalPathB
 
     public class PrimaryKeys {
 
-        public final com.mysema.query.sql.PrimaryKey<QOAuth2ResourceMapping> oauth2ResourceMappingPk = createPrimaryKey(oauth2ResourceMappingId);
+        public final com.querydsl.sql.PrimaryKey<QOAuth2ResourceMapping> oauth2ResourceMappingPk = createPrimaryKey(oauth2ResourceMappingId);
 
     }
 
     public class ForeignKeys {
 
-        public final com.mysema.query.sql.ForeignKey<org.everit.resource.ri.schema.qdsl.QResource> oauth2ResourceMappingResourceFk = createForeignKey(resourceId, "resource_id");
+        public final com.querydsl.sql.ForeignKey<org.everit.resource.ri.schema.qdsl.QResource> oauth2ResourceMappingResourceFk = createForeignKey(resourceId, "resource_id");
 
-        public final com.mysema.query.sql.ForeignKey<QOAuth2Provider> oauth2ResourceMappingProviderFk = createForeignKey(oauth2ProviderId, "oauth2_provider_id");
+        public final com.querydsl.sql.ForeignKey<QOAuth2Provider> oauth2ResourceMappingProviderFk = createForeignKey(oauth2ProviderId, "oauth2_provider_id");
 
     }
 
@@ -79,16 +80,16 @@ public class QOAuth2ResourceMapping extends com.mysema.query.sql.RelationalPathB
         addMetadata();
     }
 
-    public QOAuth2ResourceMapping(PathMetadata<?> metadata) {
+    public QOAuth2ResourceMapping(PathMetadata metadata) {
         super(QOAuth2ResourceMapping.class, metadata, "org.everit.authentication.oauth2.ri", "oauth2_resource_mapping");
         addMetadata();
     }
 
     public void addMetadata() {
-        addMetadata(oauth2ProviderId, ColumnMetadata.named("oauth2_provider_id").ofType(-5).withSize(19).notNull());
-        addMetadata(oauth2ResourceMappingId, ColumnMetadata.named("oauth2_resource_mapping_id").ofType(-5).withSize(19).notNull());
-        addMetadata(providerUniqueUserId, ColumnMetadata.named("provider_unique_user_id").ofType(12).withSize(256).notNull());
-        addMetadata(resourceId, ColumnMetadata.named("resource_id").ofType(-5).withSize(19).notNull());
+        addMetadata(oauth2ProviderId, ColumnMetadata.named("oauth2_provider_id").withIndex(3).ofType(Types.BIGINT).withSize(19).notNull());
+        addMetadata(oauth2ResourceMappingId, ColumnMetadata.named("oauth2_resource_mapping_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
+        addMetadata(providerUniqueUserId, ColumnMetadata.named("provider_unique_user_id").withIndex(4).ofType(Types.VARCHAR).withSize(256).notNull());
+        addMetadata(resourceId, ColumnMetadata.named("resource_id").withIndex(2).ofType(Types.BIGINT).withSize(19).notNull());
     }
 
 }
