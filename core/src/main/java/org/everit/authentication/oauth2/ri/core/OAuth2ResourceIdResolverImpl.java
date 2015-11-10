@@ -27,8 +27,8 @@ import org.everit.resource.resolver.ResourceIdResolver;
 import org.everit.resource.ri.schema.qdsl.QResource;
 import org.everit.transaction.propagator.TransactionPropagator;
 
-import com.mysema.query.sql.SQLQuery;
-import com.mysema.query.sql.dml.SQLInsertClause;
+import com.querydsl.sql.SQLQuery;
+import com.querydsl.sql.dml.SQLInsertClause;
 
 /**
  * OAuth2 specific {@link ResourceIdResolver} configured to a dedicated provider. This
@@ -177,7 +177,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
       QResource qResource = QResource.resource;
 
-      return new SQLQuery(connection, configuration)
+      return new SQLQuery<>(connection, configuration)
           .from(qResource)
           .where(qResource.resourceId.eq(resourceId))
           .forUpdate();
@@ -190,10 +190,11 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
       QOAuth2Provider qoAuth2Provider = QOAuth2Provider.oAuth2Provider;
 
-      return new SQLQuery(connection, configuration)
+      return new SQLQuery<Long>(connection, configuration)
+          .select(qoAuth2Provider.oauth2ProviderId)
           .from(qoAuth2Provider)
           .where(qoAuth2Provider.providerName.eq(providerName))
-          .uniqueResult(qoAuth2Provider.oauth2ProviderId);
+          .fetchFirst();
     });
   }
 
@@ -203,11 +204,12 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
 
       QOAuth2ResourceMapping qoAuth2ResourceMapping = QOAuth2ResourceMapping.oAuth2ResourceMapping;
 
-      return new SQLQuery(connection, configuration)
+      return new SQLQuery<Long>(connection, configuration)
+          .select(qoAuth2ResourceMapping.resourceId)
           .from(qoAuth2ResourceMapping)
           .where(qoAuth2ResourceMapping.oauth2ProviderId.eq(providerId)
               .and(qoAuth2ResourceMapping.providerUniqueUserId.eq(uniqueUserId)))
-          .uniqueResult(qoAuth2ResourceMapping.resourceId);
+          .fetchFirst();
     });
   }
 }
