@@ -194,7 +194,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
           .select(qoAuth2Provider.oauth2ProviderId)
           .from(qoAuth2Provider)
           .where(qoAuth2Provider.providerName.eq(providerName))
-          .fetchFirst();
+          .fetchOne();
     });
   }
 
@@ -209,7 +209,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
           .from(qoAuth2ResourceMapping)
           .where(qoAuth2ResourceMapping.oauth2ProviderId.eq(providerId)
               .and(qoAuth2ResourceMapping.providerUniqueUserId.eq(uniqueUserId)))
-          .fetchFirst();
+          .fetchOne();
     });
   }
 }
