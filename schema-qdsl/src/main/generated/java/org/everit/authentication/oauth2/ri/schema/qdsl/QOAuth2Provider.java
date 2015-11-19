@@ -15,15 +15,16 @@
  */
 package org.everit.authentication.oauth2.ri.schema.qdsl;
 
-import static com.mysema.query.types.PathMetadataFactory.*;
+import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.mysema.query.types.path.*;
+import com.querydsl.core.types.dsl.*;
 
-import com.mysema.query.types.PathMetadata;
+import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
-import com.mysema.query.types.Path;
+import com.querydsl.core.types.Path;
 
-import com.mysema.query.sql.ColumnMetadata;
+import com.querydsl.sql.ColumnMetadata;
+import java.sql.Types;
 
 
 
@@ -31,8 +32,8 @@ import com.mysema.query.sql.ColumnMetadata;
 /**
  * QOAuth2Provider is a Querydsl query type for QOAuth2Provider
  */
-@Generated("com.mysema.query.sql.codegen.MetaDataSerializer")
-public class QOAuth2Provider extends com.mysema.query.sql.RelationalPathBase<QOAuth2Provider> {
+@Generated("com.querydsl.sql.codegen.MetaDataSerializer")
+public class QOAuth2Provider extends com.querydsl.sql.RelationalPathBase<QOAuth2Provider> {
 
     private static final long serialVersionUID = -905508439;
 
@@ -40,13 +41,13 @@ public class QOAuth2Provider extends com.mysema.query.sql.RelationalPathBase<QOA
 
     public class PrimaryKeys {
 
-        public final com.mysema.query.sql.PrimaryKey<QOAuth2Provider> oauth2ProviderPk = createPrimaryKey(oauth2ProviderId);
+        public final com.querydsl.sql.PrimaryKey<QOAuth2Provider> oauth2ProviderPk = createPrimaryKey(oauth2ProviderId);
 
     }
 
     public class ForeignKeys {
 
-        public final com.mysema.query.sql.ForeignKey<QOAuth2ResourceMapping> _oauth2ResourceMappingProviderFk = createInvForeignKey(oauth2ProviderId, "oauth2_provider_id");
+        public final com.querydsl.sql.ForeignKey<QOAuth2ResourceMapping> _oauth2ResourceMappingProviderFk = createInvForeignKey(oauth2ProviderId, "oauth2_provider_id");
 
     }
 
@@ -73,14 +74,14 @@ public class QOAuth2Provider extends com.mysema.query.sql.RelationalPathBase<QOA
         addMetadata();
     }
 
-    public QOAuth2Provider(PathMetadata<?> metadata) {
+    public QOAuth2Provider(PathMetadata metadata) {
         super(QOAuth2Provider.class, metadata, "org.everit.authentication.oauth2.ri", "oauth2_provider");
         addMetadata();
     }
 
     public void addMetadata() {
-        addMetadata(oauth2ProviderId, ColumnMetadata.named("oauth2_provider_id").ofType(-5).withSize(19).notNull());
-        addMetadata(providerName, ColumnMetadata.named("provider_name").ofType(12).withSize(256).notNull());
+        addMetadata(oauth2ProviderId, ColumnMetadata.named("oauth2_provider_id").withIndex(1).ofType(Types.BIGINT).withSize(19).notNull());
+        addMetadata(providerName, ColumnMetadata.named("provider_name").withIndex(2).ofType(Types.VARCHAR).withSize(256).notNull());
     }
 
 }
