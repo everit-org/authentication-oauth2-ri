@@ -178,6 +178,7 @@ public class OAuth2ResourceIdResolverImpl implements ResourceIdResolver {
       QResource qResource = QResource.resource;
 
       return new SQLQuery<>(connection, configuration)
+          .select(qResource.resourceId)
           .from(qResource)
           .where(qResource.resourceId.eq(resourceId))
           .forUpdate();
