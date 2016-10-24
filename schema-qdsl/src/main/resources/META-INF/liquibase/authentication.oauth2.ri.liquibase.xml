@@ -16,21 +16,21 @@
     limitations under the License.
 
 -->
-<databaseChangeLog objectQuotingStrategy="QUOTE_ALL_OBJECTS" logicalFilePath="org.everit.authentication.oauth2.ri.schema"
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+<databaseChangeLog objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS"
+  logicalFilePath="org.everit.authentication.oauth2.ri.schema" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <include file="org.everit.resource.ri.eosgi" />
-  <include file="org.everit.props.ri.eosgi" />
+  <include file="org.everit.resource.ri.osgi" />
 
-  <changeSet id="1.0.0" author="everit">
+  <changeSet id="2.0.0" author="everit">
 
     <createTable tableName="oauth2_provider">
       <column name="oauth2_provider_id" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false" primaryKeyName="pk_oauth2_provider" />
       </column>
-      <column name="provider_name" type="java.sql.Types.VARCHAR(256)">
+      <column name="provider_name" type="varchar(255)">
         <constraints nullable="false" unique="true" uniqueConstraintName="ix_oauth2_provider_name" />
       </column>
     </createTable>
@@ -40,21 +40,20 @@
         <constraints primaryKey="true" nullable="false" primaryKeyName="pk_oauth2_resource_mapping" />
       </column>
       <column name="resource_id" type="bigint">
-        <constraints nullable="false" />
+        <constraints nullable="false" foreignKeyName="fk_oauth2_res_mapp_res"
+          referencedTableName="res_resource" referencedColumnNames="resource_id" />
       </column>
       <column name="oauth2_provider_id" type="bigint">
         <constraints nullable="false" />
       </column>
-      <column name="provider_unique_user_id" type="java.sql.Types.VARCHAR(256)">
+      <column name="provider_unique_user_id" type="varchar(255)">
         <constraints nullable="false" />
       </column>
     </createTable>
 
-    <addForeignKeyConstraint constraintName="fk_oauth2_resource_mapping_resource" baseTableName="oauth2_resource_mapping"
-      baseColumnNames="resource_id" referencedTableName="res_resource" referencedColumnNames="resource_id" />
-
-    <addForeignKeyConstraint constraintName="fk_oauth2_resource_mapping_provider" baseTableName="oauth2_resource_mapping"
-      baseColumnNames="oauth2_provider_id" referencedTableName="oauth2_provider" referencedColumnNames="oauth2_provider_id" />
+    <addForeignKeyConstraint constraintName="fk_oauth2_res_mapp_prov"
+      baseTableName="oauth2_resource_mapping" baseColumnNames="oauth2_provider_id"
+      referencedTableName="oauth2_provider" referencedColumnNames="oauth2_provider_id" />
 
     <addUniqueConstraint constraintName="ix_oauth2_provider_user_id" tableName="oauth2_resource_mapping"
       columnNames="oauth2_provider_id, provider_unique_user_id" />
